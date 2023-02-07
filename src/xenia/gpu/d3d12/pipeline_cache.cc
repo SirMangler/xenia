@@ -43,7 +43,7 @@
 #include "xenia/gpu/xenos.h"
 #include "xenia/ui/d3d12/d3d12_util.h"
 
-DEFINE_bool(d3d12_dxbc_disasm, false,
+DEFINE_bool(d3d12_dxbc_disasm, true,
             "Disassemble DXBC shaders after generation.", "D3D12");
 DEFINE_bool(
     d3d12_dxbc_disasm_dxilconv, false,
@@ -104,7 +104,7 @@ PipelineCache::PipelineCache(D3D12CommandProcessor& command_processor,
       render_target_cache_.msaa_2x_supported(),
       render_target_cache_.draw_resolution_scale_x(),
       render_target_cache_.draw_resolution_scale_y(),
-      provider.GetGraphicsAnalysis() != nullptr);
+      false);
 
   if (edram_rov_used) {
     depth_only_pixel_shader_ =
@@ -397,7 +397,7 @@ void PipelineCache::InitializeShaderStorage(
           render_target_cache_.msaa_2x_supported(),
           render_target_cache_.draw_resolution_scale_x(),
           render_target_cache_.draw_resolution_scale_y(),
-          provider.GetGraphicsAnalysis() != nullptr);
+          false);
       // If needed and possible, create objects needed for DXIL conversion and
       // disassembly on this thread.
       IDxbcConverter* dxbc_converter = nullptr;

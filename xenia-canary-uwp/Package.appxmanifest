@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+  <Identity
+    Name="27d6ba69-e4f1-4b69-b391-8238bab5a431"
+    Publisher="CN=SirMangler"
+    Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="27d6ba69-e4f1-4b69-b391-8238bab5a431" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <Properties>
+    <DisplayName>xenia-canary-uwp</DisplayName>
+    <PublisherDisplayName>SirMangler</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="xenia_canary_uwp.App">
+      <uap:VisualElements DisplayName="Xenia Canary" Description="The Xenia project on UWP! Xbox is a trademark of Microsoft. Xenia is not affiliated with Microsoft."
+        Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="transparent">
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:DefaultTile/>
+      </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileOpenPicker">
+          <uap:FileOpenPicker>
+            <uap:SupportedFileTypes>
+              <uap:SupportsAnyFileType/>
+            </uap:SupportedFileTypes>
+          </uap:FileOpenPicker>
+        </uap:Extension>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="xex">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.xex</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <uap:Capability Name="removableStorage"/>
+  </Capabilities>
+</Package>

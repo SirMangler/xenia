@@ -106,3 +106,6 @@ node_modules/.bin/
 /cache1
 /cache0
 recent.toml
+/xenia-canary-uwp/Generated Files/winrt
+/xenia-canary-uwp/x64/Release
+/xenia-canary-uwp/BundleArtifacts

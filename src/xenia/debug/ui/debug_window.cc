@@ -47,7 +47,7 @@ using xe::kernel::XModule;
 using xe::kernel::XObject;
 using xe::kernel::XThread;
 using xe::ui::KeyEvent;
-using xe::ui::MenuItem;
+//using xe::ui::MenuItem; - todo uwp
 using xe::ui::MouseEvent;
 using xe::ui::UIEvent;
 
@@ -93,15 +93,15 @@ std::unique_ptr<DebugWindow> DebugWindow::Create(
 
 bool DebugWindow::Initialize() {
   // Main menu.
-  auto main_menu = MenuItem::Create(MenuItem::Type::kNormal);
-  auto file_menu = MenuItem::Create(MenuItem::Type::kPopup, "&File");
-  {
-    file_menu->AddChild(
-        MenuItem::Create(MenuItem::Type::kString, "&Close", "Alt+F4",
-                         [this]() { window_->RequestClose(); }));
-  }
-  main_menu->AddChild(std::move(file_menu));
-  window_->SetMainMenu(std::move(main_menu));
+  //auto main_menu = MenuItem::Create(MenuItem::Type::kNormal);
+  //auto file_menu = MenuItem::Create(MenuItem::Type::kPopup, "&File");
+  //{
+  //  file_menu->AddChild(
+  //      MenuItem::Create(MenuItem::Type::kString, "&Close", "Alt+F4",
+  //                       [this]() { window_->RequestClose(); }));
+  //}
+  //main_menu->AddChild(std::move(file_menu));
+  //window_->SetMainMenu(std::move(main_menu));
 
   // Open the window once it's configured.
   if (!window_->Open()) {

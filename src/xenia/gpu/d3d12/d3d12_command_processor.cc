@@ -49,7 +49,7 @@ DEFINE_bool(d3d12_submit_on_primary_buffer_end, true,
             "Submit the command list when a PM4 primary buffer ends if it's "
             "possible to submit immediately to try to reduce frame latency.",
             "D3D12");
-DEFINE_bool(d3d12_clear_memory_page_state, false,
+DEFINE_bool(d3d12_clear_memory_page_state, true,
             "Refresh state of memory pages to enable gpu written data. (Use "
             "for 'Team Ninja' Games to fix missing character models)",
             "D3D12");
@@ -101,10 +101,10 @@ void D3D12CommandProcessor::InitializeShaderStorage(
 void D3D12CommandProcessor::RequestFrameTrace(
     const std::filesystem::path& root_path) {
   // Capture with PIX if attached.
-  if (GetD3D12Provider().GetGraphicsAnalysis() != nullptr) {
-    pix_capture_requested_.store(true, std::memory_order_relaxed);
-    return;
-  }
+  //if (GetD3D12Provider().GetGraphicsAnalysis() != nullptr) {
+  //  pix_capture_requested_.store(true, std::memory_order_relaxed);
+  //  return;
+  //}
   CommandProcessor::RequestFrameTrace(root_path);
 }
 
@@ -3468,15 +3468,15 @@ bool D3D12CommandProcessor::BeginSubmission(bool is_guest_command) {
       sampler_bindful_heap_pool_->Reclaim(frame_completed_);
     }
 
-    pix_capturing_ =
-        pix_capture_requested_.exchange(false, std::memory_order_relaxed);
-    if (pix_capturing_) {
-      IDXGraphicsAnalysis* graphics_analysis =
-          GetD3D12Provider().GetGraphicsAnalysis();
-      if (graphics_analysis != nullptr) {
-        graphics_analysis->BeginCapture();
-      }
-    }
+    //pix_capturing_ =
+    //    pix_capture_requested_.exchange(false, std::memory_order_relaxed);
+    //if (pix_capturing_) {
+    //  IDXGraphicsAnalysis* graphics_analysis =
+    //      GetD3D12Provider().GetGraphicsAnalysis();
+    //  if (graphics_analysis != nullptr) {
+    //    graphics_analysis->BeginCapture();
+    //  }
+    //}
 
     primitive_processor_->BeginFrame();
 
@@ -3568,13 +3568,13 @@ bool D3D12CommandProcessor::EndSubmission(bool is_swap) {
       shared_memory_->SetSystemPageBlocksValidWithGpuDataWritten();
     }
     // Close the capture after submitting.
-    if (pix_capturing_) {
-      IDXGraphicsAnalysis* graphics_analysis = provider.GetGraphicsAnalysis();
-      if (graphics_analysis != nullptr) {
-        graphics_analysis->EndCapture();
-      }
-      pix_capturing_ = false;
-    }
+    //if (pix_capturing_) {
+    //  IDXGraphicsAnalysis* graphics_analysis = provider.GetGraphicsAnalysis();
+    //  if (graphics_analysis != nullptr) {
+    //    graphics_analysis->EndCapture();
+    //  }
+    //  pix_capturing_ = false;
+    //}
     frame_open_ = false;
     // Submission already closed now, so minus 1.
     closed_frame_submissions_[(frame_current_++) % kQueueFrames] =

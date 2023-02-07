@@ -161,6 +161,21 @@ class EmulatorWindow {
     EmulatorWindow& emulator_window_;
   };
 
+  class WinRTFrontendDialog final : public ui::ImGuiDialog {
+   public:
+    WinRTFrontendDialog(ui::ImGuiDrawer* imgui_drawer,
+                   EmulatorWindow& emulator_window)
+        : ui::ImGuiDialog(imgui_drawer), emulator_window_(emulator_window) {}
+
+   protected:
+    void OnDraw(ImGuiIO& io) override;
+
+   private:
+    EmulatorWindow& emulator_window_;
+    std::string selectedPath;
+    bool ignoreInput = false;
+  };
+  
   explicit EmulatorWindow(Emulator* emulator,
                           ui::WindowedAppContext& app_context);
 
@@ -233,6 +248,7 @@ class EmulatorWindow {
   bool initializing_shader_storage_ = false;
 
   std::unique_ptr<DisplayConfigDialog> display_config_dialog_;
+  std::unique_ptr<EmulatorWindow::WinRTFrontendDialog> gamelist_;
 
   std::vector<RecentTitleEntry> recently_launched_titles_;
 };
