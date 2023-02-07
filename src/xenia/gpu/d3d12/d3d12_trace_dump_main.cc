@@ -29,19 +29,19 @@ class D3D12TraceDump : public TraceDump {
   void BeginHostCapture() override {
     auto provider = static_cast<const ui::d3d12::D3D12Provider*>(
         graphics_system_->provider());
-    IDXGraphicsAnalysis* graphics_analysis = provider->GetGraphicsAnalysis();
-    if (graphics_analysis) {
-      graphics_analysis->BeginCapture();
-    }
+    //IDXGraphicsAnalysis* graphics_analysis = provider->GetGraphicsAnalysis();
+    //if (graphics_analysis) {
+    //  graphics_analysis->BeginCapture();
+    //}
   }
 
   void EndHostCapture() override {
     auto provider = static_cast<const ui::d3d12::D3D12Provider*>(
         graphics_system_->provider());
-    IDXGraphicsAnalysis* graphics_analysis = provider->GetGraphicsAnalysis();
-    if (graphics_analysis) {
-      graphics_analysis->EndCapture();
-    }
+    //IDXGraphicsAnalysis* graphics_analysis = provider->GetGraphicsAnalysis();
+    //if (graphics_analysis) {
+    //  graphics_analysis->EndCapture();
+    //}
   }
 };
 

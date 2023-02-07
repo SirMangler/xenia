@@ -22,6 +22,11 @@
 #include "xenia/ui/resources.h"
 #include "xenia/ui/ui_event.h"
 #include "xenia/ui/window.h"
+#include <xenia/hid/input.h>
+
+#if XE_PLATFORM_WINRT
+#include "xenia-canary-uwp/XeniaUWP.h"
+#endif
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "third_party/stb/stb_image.h"
@@ -138,7 +143,31 @@ void ImGuiDrawer::Initialize() {
   internal_state_ = ImGui::CreateContext();
   ImGui::SetCurrentContext(internal_state_);
 
-  InitializeFonts();
+  auto& io = ImGui::GetIO();
+
+  // TODO(gibbed): disable imgui.ini saving for now,
+  // imgui assumes paths are char* so we can't throw a good path at it on
+  // Windows.
+  io.IniFilename = nullptr;
+
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+  io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+  io.NavVisible = true;
+
+  // Setup the font glyphs.
+  ImFontConfig font_config;
+  font_config.OversampleH = font_config.OversampleV = 1;
+  font_config.PixelSnapH = true;
+
+  // https://jrgraphix.net/r/Unicode/
+  static const ImWchar font_glyph_ranges[] = {
+      0x0020, 0x00FF,  // Basic Latin + Latin Supplement
+      0x2000, 0x206F,  // General Punctuation
+      0,
+  };
+  io.Fonts->AddFontFromMemoryCompressedBase85TTF(
+      kProggyTinyCompressedDataBase85, 10.0f, &font_config,
+      io.Fonts->GetGlyphRangesDefault());
 
   auto& style = ImGui::GetStyle();
   style.ScrollbarRounding = 0;
@@ -439,7 +468,6 @@ void ImGuiDrawer::Draw(UIDrawContext& ui_draw_context) {
   ImGui::SetCurrentContext(internal_state_);
 
   ImGuiIO& io = ImGui::GetIO();
-
   uint64_t current_frame_time_ticks = Clock::QueryHostTickCount();
   io.DeltaTime =
       float(double(current_frame_time_ticks - last_frame_time_ticks_) /
@@ -455,7 +483,7 @@ void ImGuiDrawer::Draw(UIDrawContext& ui_draw_context) {
   float physical_to_logical =
       float(window_->GetMediumDpi()) / float(window_->GetDpi());
   io.DisplaySize.x = window_->GetActualPhysicalWidth() * physical_to_logical;
-  io.DisplaySize.y = window_->GetActualPhysicalHeight() * physical_to_logical;
+  io.DisplaySize.y = window_->GetActualPhysicalHeight() * physical_to_logical;  
 
   ImGui::NewFrame();
 

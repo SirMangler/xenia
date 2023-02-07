@@ -50,33 +50,33 @@ bool D3D12SharedMemory::Initialize() {
   ui::d3d12::util::FillBufferResourceDesc(
       buffer_desc, kBufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
   buffer_state_ = D3D12_RESOURCE_STATE_COPY_DEST;
-  if (cvars::d3d12_tiled_shared_memory &&
-      provider.GetTiledResourcesTier() !=
-          D3D12_TILED_RESOURCES_TIER_NOT_SUPPORTED &&
-      !provider.GetGraphicsAnalysis()) {
-    if (FAILED(device->CreateReservedResource(
-            &buffer_desc, buffer_state_, nullptr, IID_PPV_ARGS(&buffer_)))) {
-      XELOGE("Shared memory: Failed to create the {} MB tiled buffer",
-             kBufferSize >> 20);
-      Shutdown();
-      return false;
-    }
-    static_assert(D3D12_TILED_RESOURCE_TILE_SIZE_IN_BYTES == (1 << 16));
-    InitializeSparseHostGpuMemory(
-        std::max(kHostGpuMemoryOptimalSparseAllocationLog2, uint32_t(16)));
-  } else {
+  //if (cvars::d3d12_tiled_shared_memory &&
+  //    provider.GetTiledResourcesTier() !=
+  //        D3D12_TILED_RESOURCES_TIER_NOT_SUPPORTED &&
+  //    !provider.GetGraphicsAnalysis()) {
+  //  if (FAILED(device->CreateReservedResource(
+  //          &buffer_desc, buffer_state_, nullptr, IID_PPV_ARGS(&buffer_)))) {
+  //    XELOGE("Shared memory: Failed to create the {} MB tiled buffer",
+  //           kBufferSize >> 20);
+  //    Shutdown();
+  //    return false;
+  //  }
+  //  static_assert(D3D12_TILED_RESOURCE_TILE_SIZE_IN_BYTES == (1 << 16));
+  //  InitializeSparseHostGpuMemory(
+  //      std::max(kHostGpuMemoryOptimalSparseAllocationLog2, uint32_t(16)));
+  //} else {
     XELOGGPU(
         "Direct3D 12 tiled resources are not used for shared memory "
         "emulation - video memory usage may increase significantly "
         "because a full {} MB buffer will be created",
         kBufferSize >> 20);
-    if (provider.GetGraphicsAnalysis()) {
-      // As of October 8th, 2018, PIX doesn't support tiled buffers.
-      // FIXME(Triang3l): Re-enable tiled resources with PIX once fixed.
-      XELOGGPU(
-          "This is caused by PIX being attached, which doesn't support tiled "
-          "resources yet.");
-    }
+    //if (provider.GetGraphicsAnalysis()) {
+    //  // As of October 8th, 2018, PIX doesn't support tiled buffers.
+    //  // FIXME(Triang3l): Re-enable tiled resources with PIX once fixed.
+    //  XELOGGPU(
+    //      "This is caused by PIX being attached, which doesn't support tiled "
+    //      "resources yet.");
+    //}
     if (FAILED(device->CreateCommittedResource(
             &ui::d3d12::util::kHeapPropertiesDefault,
             provider.GetHeapFlagCreateNotZeroed(), &buffer_desc, buffer_state_,
@@ -86,7 +86,7 @@ bool D3D12SharedMemory::Initialize() {
       Shutdown();
       return false;
     }
-  }
+  //}
   buffer_gpu_address_ = buffer_->GetGPUVirtualAddress();
   buffer_uav_writes_commit_needed_ = false;
 

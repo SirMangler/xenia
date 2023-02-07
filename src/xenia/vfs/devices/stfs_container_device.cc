@@ -18,7 +18,7 @@
 #include "xenia/vfs/devices/stfs_container_entry.h"
 
 #if XE_PLATFORM_WIN32
-#include "xenia/base/platform_win.h"
+//#include "xenia/base/platform_win.h"
 #define timegm _mkgmtime
 #endif
 

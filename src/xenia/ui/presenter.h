@@ -37,7 +37,7 @@
 #if XE_PLATFORM_WIN32
 // Must be included before DXGI for things like NOMINMAX, and also needed for
 // Windows handle types.
-#include "xenia/base/platform_win.h"
+//#include "xenia/base/platform_win.h"
 
 #include <dxgi.h>
 #include <wrl/client.h>

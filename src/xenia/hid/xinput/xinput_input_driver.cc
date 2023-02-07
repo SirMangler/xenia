@@ -17,6 +17,11 @@
 #include "xenia/base/clock.h"
 #include "xenia/base/logging.h"
 #include "xenia/hid/hid_flags.h"
+
+#if XE_PLATFORM_WINRT
+#include "xenia-canary-uwp/window_uwp.h"
+#endif
+
 namespace xe {
 namespace hid {
 namespace xinput {
@@ -43,6 +48,10 @@ XInputInputDriver::~XInputInputDriver() {
     XInputSetState_ = nullptr;
     XInputEnable_ = nullptr;
   }
+
+#if XE_PLATFORM_WINRT
+  static_cast<xe::ui::UWPWindow*>(window())->ClearXInputDriver();
+#endif
 }
 
 X_STATUS XInputInputDriver::Setup() {
@@ -78,6 +87,10 @@ X_STATUS XInputInputDriver::Setup() {
   XInputGetKeystroke_ = xigk;
   XInputSetState_ = xiss;
   XInputEnable_ = xie;
+
+#if XE_PLATFORM_WINRT
+  static_cast<xe::ui::UWPWindow*>(window())->SetXInputDriver(this);
+#endif
 
   return X_STATUS_SUCCESS;
 }
