@@ -20,6 +20,11 @@
 #include "xenia/ui/imgui_dialog.h"
 #include "xenia/ui/ui_event.h"
 #include "xenia/ui/window.h"
+#include <xenia/hid/input.h>
+
+#if XE_PLATFORM_WINRT
+#include "xenia-canary-uwp/XeniaUWP.h"
+#endif
 
 namespace xe {
 namespace ui {
@@ -104,6 +109,10 @@ void ImGuiDrawer::Initialize() {
   // imgui assumes paths are char* so we can't throw a good path at it on
   // Windows.
   io.IniFilename = nullptr;
+
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+  io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+  io.NavVisible = true;
 
   // Setup the font glyphs.
   ImFontConfig font_config;
@@ -296,7 +305,6 @@ void ImGuiDrawer::Draw(UIDrawContext& ui_draw_context) {
   ImGui::SetCurrentContext(internal_state_);
 
   ImGuiIO& io = ImGui::GetIO();
-
   uint64_t current_frame_time_ticks = Clock::QueryHostTickCount();
   io.DeltaTime =
       float(double(current_frame_time_ticks - last_frame_time_ticks_) /
@@ -312,7 +320,7 @@ void ImGuiDrawer::Draw(UIDrawContext& ui_draw_context) {
   float physical_to_logical =
       float(window_->GetMediumDpi()) / float(window_->GetDpi());
   io.DisplaySize.x = window_->GetActualPhysicalWidth() * physical_to_logical;
-  io.DisplaySize.y = window_->GetActualPhysicalHeight() * physical_to_logical;
+  io.DisplaySize.y = window_->GetActualPhysicalHeight() * physical_to_logical;  
 
   ImGui::NewFrame();
 

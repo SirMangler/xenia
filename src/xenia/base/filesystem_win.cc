@@ -14,6 +14,11 @@
 
 #undef CreateFile
 
+#include "xenia/base/platform.h"
+#if XE_PLATFORM_WINRT
+#include "xenia-canary-uwp/UWPUtil.h"
+#endif
+
 #include "xenia/base/filesystem.h"
 #include "xenia/base/logging.h"
 #include "xenia/base/platform_win.h"
@@ -38,7 +43,6 @@ std::filesystem::path to_path(const std::u16string_view source) {
 }
 
 namespace filesystem {
-
 std::filesystem::path GetExecutablePath() {
   wchar_t* path;
   auto error = _get_wpgmptr(&path);
@@ -46,10 +50,17 @@ std::filesystem::path GetExecutablePath() {
 }
 
 std::filesystem::path GetExecutableFolder() {
+  #if XE_PLATFORM_WINRT
+  return UWP::GetLocalState();
+  #else
   return GetExecutablePath().parent_path();
+  #endif
 }
 
 std::filesystem::path GetUserFolder() {
+#if XE_PLATFORM_WINRT
+  return UWP::GetLocalState();
+#else
   std::filesystem::path result;
   PWSTR path;
   if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT,
@@ -57,7 +68,9 @@ std::filesystem::path GetUserFolder() {
     result.assign(path);
     CoTaskMemFree(path);
   }
-  return result;
+
+  return path;
+#endif
 }
 
 bool CreateEmptyFile(const std::filesystem::path& path) {

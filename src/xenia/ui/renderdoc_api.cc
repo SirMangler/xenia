@@ -16,7 +16,7 @@
 #if XE_PLATFORM_LINUX
 #include <dlfcn.h>
 #elif XE_PLATFORM_WIN32
-#include "xenia/base/platform_win.h"
+#include <windows.h>
 #endif
 
 namespace xe {

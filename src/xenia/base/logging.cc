@@ -40,7 +40,7 @@
 #include <android/log.h>
 #elif XE_PLATFORM_WIN32
 // For MessageBox:
-#include "xenia/base/platform_win.h"
+//#include "xenia/base/platform_win.h"
 #endif  // XE_PLATFORM
 
 #include "third_party/fmt/include/fmt/format.h"
@@ -56,7 +56,7 @@ DEFINE_bool(log_to_debugprint, false, "Dump the log to DebugPrint.", "Logging");
 DEFINE_bool(flush_log, true, "Flush log file after each log line batch.",
             "Logging");
 DEFINE_int32(
-    log_level, 2,
+    log_level, -1,
     "Maximum level to be logged. (0=error, 1=warning, 2=info, 3=debug)",
     "Logging");
 
@@ -400,6 +400,7 @@ class Logger {
   void AppendLine(uint32_t thread_id, const char prefix_char,
                   const char* buffer_data, size_t buffer_length,
                   bool terminate = false) {
+    return;
     size_t count = BlockCount(sizeof(LogLine) + buffer_length);
 
     auto range = claim_strategy_.claim(count);
@@ -434,7 +435,7 @@ void InitializeLogging(const std::string_view app_name) {
   if (cvars::log_to_logcat) {
     logger_->AddLogSink(std::make_unique<AndroidLogSink>(app_name));
   }
-#else
+//#else // if UWP, we should fix this at some point, for now it's annoying to get a UWP path to here
   FILE* log_file = nullptr;
   if (cvars::log_file.empty()) {
     // Default to app name.

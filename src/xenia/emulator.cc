@@ -569,25 +569,25 @@ const std::filesystem::path Emulator::GetNewDiscPath(
     std::string window_message) {
   std::filesystem::path path = "";
 
-  auto file_picker = xe::ui::FilePicker::Create();
-  file_picker->set_mode(ui::FilePicker::Mode::kOpen);
-  file_picker->set_type(ui::FilePicker::Type::kFile);
-  file_picker->set_multi_selection(false);
-  file_picker->set_title(!window_message.empty() ? window_message
-                                                 : "Select Content Package");
-  file_picker->set_extensions({
-      {"Supported Files", "*.iso;*.xex;*.xcp;*.*"},
-      {"Disc Image (*.iso)", "*.iso"},
-      {"Xbox Executable (*.xex)", "*.xex"},
-      {"All Files (*.*)", "*.*"},
-  });
+  //auto file_picker = xe::ui::FilePicker::Create();
+  //file_picker->set_mode(ui::FilePicker::Mode::kOpen);
+  //file_picker->set_type(ui::FilePicker::Type::kFile);
+  //file_picker->set_multi_selection(false);
+  //file_picker->set_title(!window_message.empty() ? window_message
+  //                                               : "Select Content Package");
+  //file_picker->set_extensions({
+  //    {"Supported Files", "*.iso;*.xex;*.xcp;*.*"},
+  //    {"Disc Image (*.iso)", "*.iso"},
+  //    {"Xbox Executable (*.xex)", "*.xex"},
+  //    {"All Files (*.*)", "*.*"},
+  //});
 
-  if (file_picker->Show()) {
-    auto selected_files = file_picker->selected_files();
-    if (!selected_files.empty()) {
-      path = selected_files[0];
-    }
-  }
+  //if (file_picker->Show()) {
+  //  auto selected_files = file_picker->selected_files();
+  //  if (!selected_files.empty()) {
+  //    path = selected_files[0];
+  //  }
+  //}
   return path;
 }
 

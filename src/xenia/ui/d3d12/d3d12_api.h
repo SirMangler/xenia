@@ -11,9 +11,10 @@
 #define XENIA_UI_D3D12_D3D12_API_H_
 
 // Must be included before D3D and DXGI for things like NOMINMAX.
-#include "xenia/base/platform_win.h"
+//#include "xenia/base/platform_win.h"
+#define NOMINMAX
 
-#include <DXProgrammableCapture.h>
+//#include <DXProgrammableCapture.h>
 #include <d3d12.h>
 #include <d3d12sdklayers.h>
 #include <d3dcompiler.h>
