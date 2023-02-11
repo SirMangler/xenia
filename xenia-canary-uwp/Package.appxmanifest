@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap mp rescap">
   <Identity
     Name="27d6ba69-e4f1-4b69-b391-8238bab5a431"
     Publisher="CN=SirMangler"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
   <mp:PhoneIdentity PhoneProductId="27d6ba69-e4f1-4b69-b391-8238bab5a431" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
   <Properties>
     <DisplayName>xenia-canary-uwp</DisplayName>
@@ -42,7 +42,10 @@
     </Application>
   </Applications>
   <Capabilities>
-    <Capability Name="internetClient" />
-    <uap:Capability Name="removableStorage"/>
+	  <Capability Name="internetClient" />
+	  <rescap:Capability Name="runFullTrust"/>
+	  <rescap:Capability Name="broadFileSystemAccess" />
+	  <uap:Capability Name="removableStorage"/>
+	  <Capability Name="codeGeneration"/>
   </Capabilities>
 </Package>

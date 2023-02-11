@@ -64,4 +64,13 @@ std::string GetLocalState() {
   return winrt::to_string(
       winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path());
 }
+int GetCoreDPI() {
+  winrt::Windows::Graphics::Display::DisplayInformation displayInfo = winrt::
+      Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
+  if (displayInfo) {
+    return displayInfo.LogicalDpi();
+  }
+
+  return 96;
+}
 }
