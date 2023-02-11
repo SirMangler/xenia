@@ -9,9 +9,11 @@ class Emulator;
 
 namespace UWP
 {
-void OpenGamePicker(xe::Emulator* emu);
+void SelectGameFromWinRT(xe::Emulator* emu);
 void SelectFolder(std::function<void(std::string)> callback);
 std::string GetLocalCache();
 std::string GetLocalState();
 int GetCoreDPI();
+void SetAutomaticLaunch(std::string game_path);
+void SetDPI(int DPI);
 }
