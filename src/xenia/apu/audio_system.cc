@@ -35,7 +35,7 @@
 // implementations. They can be found in xboxkrnl_audio_xma.cc
 
 DEFINE_uint32(
-    apu_max_queued_frames, 64,
+    apu_max_queued_frames, 16,
     "Allows changing max buffered audio frames to reduce audio delay. Minimum is 16.", "APU");
 
 namespace xe {
