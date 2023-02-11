@@ -64,6 +64,8 @@ DEFINE_bool(fullscreen, false, "Whether to launch the emulator in fullscreen.",
 DEFINE_bool(controller_hotkeys, false,
             "Toggle hotkeys for Xbox and PS controllers.", "General");
 
+DECLARE_bool(skip_frontend);
+
 DEFINE_bool(skip_frontend, true,
             "Skip the UWP frontend and launch with a file-picker.", "General");
 
@@ -193,7 +195,7 @@ EmulatorWindow::EmulatorWindow(Emulator* emulator,
   LoadRecentlyLaunchedTitles();
 
   if (cvars::skip_frontend) {
-    UWP::OpenGamePicker(emulator_);
+    UWP::SelectGameFromWinRT(emulator_);
   } else {
     gamelist_ = std::unique_ptr<WinRTFrontendDialog>(
         new WinRTFrontendDialog(imgui_drawer_.get(), *this));
