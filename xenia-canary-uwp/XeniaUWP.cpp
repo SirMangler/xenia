@@ -23,6 +23,7 @@
 using namespace xe;
 using namespace xe::hid;
 
+DECLARE_string(gamepaths);
 DEFINE_string(gamepaths, "", "Paths the frontend will search for games.",
               "General");
 
@@ -37,10 +38,10 @@ void UWP::StartXenia() {
   app_context = std::make_unique<ui::UWPWindowedAppContext>();
   app = xe::ui::GetWindowedAppCreator()(*app_context.get());
 
-  InitialisePaths();
   xe::InitializeWin32App(app->GetName());
 
   if (app->OnInitialize()) {
+    InitialisePaths();
     // to-do, remodel this so it doesn't instantly shutdown.
     //app->InvokeOnDestroy();
   }
