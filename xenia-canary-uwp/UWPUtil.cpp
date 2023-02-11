@@ -19,6 +19,9 @@
 
 using namespace winrt::Windows::Storage::Pickers;
 namespace UWP {
+std::string m_game_path;
+int m_DPI = 96;
+
 winrt::fire_and_forget PickGame(xe::Emulator* emu) {
   FileOpenPicker openPicker;
   openPicker.ViewMode(PickerViewMode::List);
@@ -48,7 +51,12 @@ winrt::fire_and_forget PickFolderAsync(
   callback(path);
 }
 
-void OpenGamePicker(xe::Emulator* emu) { PickGame(emu); }
+void SelectGameFromWinRT(xe::Emulator* emu) { 
+  if (m_game_path == "")
+    PickGame(emu);
+  else
+    emu->LaunchPath(m_game_path);
+}
 
 void SelectFolder(std::function<void(std::string)> callback) {
   PickFolderAsync(callback);
@@ -64,13 +72,8 @@ std::string GetLocalState() {
   return winrt::to_string(
       winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path());
 }
-int GetCoreDPI() {
-  winrt::Windows::Graphics::Display::DisplayInformation displayInfo = winrt::
-      Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
-  if (displayInfo) {
-    return displayInfo.LogicalDpi();
-  }
+int GetCoreDPI() { return m_DPI; }
 
-  return 96;
-}
+void SetAutomaticLaunch(std::string game_path) { m_game_path = game_path; }
+void SetDPI(int DPI) { m_DPI = DPI; }
 }
