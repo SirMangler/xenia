@@ -43,7 +43,7 @@
 #include "xenia/gpu/xenos.h"
 #include "xenia/ui/d3d12/d3d12_util.h"
 
-DEFINE_bool(d3d12_dxbc_disasm, true,
+DEFINE_bool(d3d12_dxbc_disasm, false,
             "Disassemble DXBC shaders after generation.", "D3D12");
 DEFINE_bool(
     d3d12_dxbc_disasm_dxilconv, false,
