@@ -73,7 +73,7 @@ DEFINE_bool(fullscreen, false, "Whether to launch the emulator in fullscreen.",
             "Display");
 
 DEFINE_bool(controller_hotkeys, false,
-            "Toggle hotkeys for Xbox and PS controllers.", "General");
+            "Hotkeys for Xbox and PS controllers.", "General");
 
 DECLARE_bool(skip_frontend);
 
@@ -1638,7 +1638,8 @@ void EmulatorWindow::LoadRecentlyLaunchedTitles() {
       std::time_t last_run_time =
           *entry_table->get_as<uint64_t>("last_run_time");
 
-      if (path.empty() || !std::filesystem::exists(path)) {
+      std::error_code ec = {};
+      if (path.empty() || !std::filesystem::exists(path, ec)) {
         continue;
       }
 
