@@ -153,6 +153,9 @@ void ImGuiDrawer::Initialize() {
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
   io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
   io.NavVisible = true;
+  io.DisplayFramebufferScale.x = 2.2f;
+  io.DisplayFramebufferScale.y = 2.2f;
+  io.FontGlobalScale = 2.2f;  
 
   // Setup the font glyphs.
   ImFontConfig font_config;

@@ -1,8 +1,12 @@
 #include "XeniaUWP.h"
 
+#include "UWPUtil.h"
+
 #include "windowed_app_context_uwp.h"
 #include "surface_uwp.h"
 #include "window_uwp.h"
+
+#include "third_party/imgui/imgui.h"
 
 #include "xenia/emulator.h"
 #include "xenia/base/filesystem.h"
@@ -17,8 +21,6 @@
 #include "xenia/apu/xaudio2/xaudio2_audio_system.h"
 #include "xenia/config.h"
 #include "xenia/base/main_win.h"
-#include "third_party/imgui/imgui.h"
-#include <UWPUtil.h>
 
 using namespace xe;
 using namespace xe::hid;
@@ -32,7 +34,8 @@ static std::unique_ptr<ui::UWPWindowedAppContext> app_context = nullptr;
 static ui::Window* s_window;
 static Emulator* s_emulator;
 static std::vector<std::string> s_paths;
-static std::vector<std::string> s_games;
+static std::vector<std::tuple<std::string, std::string>> s_games;
+static std::vector<std::string> s_scanned_paths;
 
 void UWP::StartXenia() {
   app_context = std::make_unique<ui::UWPWindowedAppContext>();
@@ -41,7 +44,7 @@ void UWP::StartXenia() {
   xe::InitializeWin32App(app->GetName());
 
   if (app->OnInitialize()) {
-    InitialisePaths();
+    RefreshPaths();
     // to-do, remodel this so it doesn't instantly shutdown.
     //app->InvokeOnDestroy();
   }
@@ -78,32 +81,51 @@ void UWP::UpdateImGuiIO() {
 void RecurseFolderForGames(std::string path) {
   try {
     for (auto file : std::filesystem::directory_iterator(path)) {
-      if (file.is_directory()) {
+      if (file.is_directory() && file.path().string() != path) {
         RecurseFolderForGames(file.path().string());
         continue;
       }
 
       if (!file.is_regular_file()) continue;
-      // only allow ISO/XEX or no extensions for now
       if (file.path().has_extension()) {
-        if (file.path().extension().compare("xex") &&
-            file.path().extension().compare("iso")) {
+        if (file.path().extension().compare(".xex") != 0 &&
+            file.path().extension().compare(".XEX") != 0)
           continue;
-        }
       }
 
-      s_games.push_back(file.path().string());
+      std::string path = file.path().string();
+
+      char MAGIC[5];
+      std::ifstream in(path, std::ios::binary);
+      in.read(MAGIC, 4);
+      in.close();
+
+      MAGIC[4] = '\0';
+      if (strcmp(MAGIC, "XEX2") == 0 || strcmp(MAGIC, "LIVE") == 0) {
+        std::string filename = "default";
+        if (file.path().filename().string() == "default.xex") {
+          if (file.path().has_parent_path())
+            filename = file.path().parent_path().filename().string();
+        } else {
+          filename = file.path().filename().string();
+        }
+
+        s_games.push_back({path, filename});
+      }
     }
   } catch (std::exception) {
     // This folder can't be opened.
   }
 }
 
-void UWP::InitialisePaths() {
+void UWP::RefreshPaths() {
+  s_paths.clear();
+  s_games.clear();
+
   RecurseFolderForGames(UWP::GetLocalCache());
 
   if (!cvars::gamepaths.empty()) {
-    std::stringstream ss;
+    std::stringstream ss (cvars::gamepaths);
     std::string item;
     while (std::getline(ss, item, ';')) {
       if (item.empty()) continue;
@@ -112,15 +134,14 @@ void UWP::InitialisePaths() {
       s_paths.push_back(item);
     }
   }
+
+  std::sort(s_games.begin(), s_games.end(), [](auto& first, auto& second) {
+    return std::get<1>(first) < std::get<1>(second);
+  });
 }
 
-std::vector<std::filesystem::path> UWP::GetGames() {
-  std::vector<std::filesystem::path> paths;
-  for (auto p : s_games) {
-    paths.push_back(std::filesystem::path(p));
-  }
-
-  return paths;
+std::vector<std::tuple<std::string, std::string>> UWP::GetGames() {
+  return s_games;
 }
 
 void UWP::SetGamePaths(std::vector<std::string> paths) {
@@ -131,8 +152,11 @@ void UWP::SetGamePaths(std::vector<std::string> paths) {
     ss << p << ";";
   }
 
-  cvars::gamepaths = ss.str();
-  // todo, how save?
+  auto cpaths = dynamic_cast<cvar::ConfigVar<std::string>*>(
+      cvar::ConfigVars->find("gamepaths")->second);
+    cpaths->SetConfigValue(ss.str());
+  config::SaveConfig();
+  RefreshPaths();
 }
 
 std::vector<std::string> UWP::GetPaths() { 
