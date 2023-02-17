@@ -89,7 +89,7 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>xenia-canary</TargetName>
+    <TargetName>xeniacanary</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
