@@ -10,6 +10,7 @@ class Emulator;
 namespace UWP
 {
 void SelectGameFromWinRT(xe::Emulator* emu);
+bool HasGamePath();
 void SelectFolder(std::function<void(std::string)> callback);
 std::string GetLocalCache();
 std::string GetLocalState();

@@ -1657,6 +1657,11 @@ void EmulatorWindow::AddRecentlyLaunchedTitle(
 }
 
 void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
+  if (UWP::HasGamePath()) {
+    UWP::SelectGameFromWinRT(emulator_window_.emulator());
+    Close();
+  }
+   
   // Draw Background first
   ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
   ImGui::SetNextWindowPos(ImVec2(0, 0));
