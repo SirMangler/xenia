@@ -50,8 +50,9 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
         return *this;
     }
 
-    void Initialize(CoreApplicationView const &)
+    void Initialize(CoreApplicationView const& v)
     {
+      v.Activated({this, &App::OnActivate});
     }
 
     void Load(hstring const&)
@@ -132,7 +133,7 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 
               // Strip the executable from the cmd argument
               if (argVal.rfind("xenia-canary.exe", 0) == 0) {
-                argVal = argVal.substr(11, argVal.length());
+                argVal = argVal.substr(16, argVal.length());
               }
 
               std::istringstream iss(argVal);

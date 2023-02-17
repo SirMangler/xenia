@@ -41,6 +41,7 @@ winrt::fire_and_forget PickFolderAsync(
   FolderPicker openPicker;
   openPicker.ViewMode(PickerViewMode::List);
   openPicker.SuggestedStartLocation(PickerLocationId::ComputerFolder);
+  openPicker.FileTypeFilter().Append(L"*");
 
   auto folder = co_await openPicker.PickSingleFolderAsync();
   std::string path = "";

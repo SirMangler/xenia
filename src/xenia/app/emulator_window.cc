@@ -19,6 +19,10 @@
 #include "third_party/cpptoml/include/cpptoml.h"
 #include "third_party/fmt/include/fmt/format.h"
 #include "third_party/imgui/imgui.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "third_party/stb/stb_image.h"
+
 #include "xenia/base/assert.h"
 #include "xenia/base/clock.h"
 #include "xenia/base/cvar.h"
@@ -47,6 +51,9 @@
 #include "build/version.h"
 #include "xenia-canary-uwp/UWPUtil.h"
 #include "xenia-canary-uwp/XeniaUWP.h"
+#include "xenia/config.h"
+#include "xenia/base/cvar.h"
+#include "xenia/ui/d3d12/d3d12_immediate_drawer.h"
 
 DECLARE_bool(debug);
 
@@ -66,7 +73,7 @@ DEFINE_bool(controller_hotkeys, false,
 
 DECLARE_bool(skip_frontend);
 
-DEFINE_bool(skip_frontend, true,
+DEFINE_bool(skip_frontend, false,
             "Skip the UWP frontend and launch with a file-picker.", "General");
 
 DEFINE_string(
@@ -1650,100 +1657,305 @@ void EmulatorWindow::AddRecentlyLaunchedTitle(
 }
 
 void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
-  ImGui::SetNextWindowFocus();
-  ImGui::SetNextWindowSize(ImVec2(540 * 1.2f, 425 * 1.2f));
-  ImGui::SetNextWindowPos(
-      ImVec2(ImGui::GetIO().DisplaySize.x / 2 - (540 / 2) * 1.2f,
-             ImGui::GetIO().DisplaySize.y / 2 - (425 / 2) * 1.2f));
+  // Draw Background first
+  ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+  ImGui::SetNextWindowPos(ImVec2(0, 0));
 
-  int flags = ImGuiWindowFlags_NoTitleBar;
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+  if (ImGui::Begin("Background", nullptr,
+                   ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoScrollbar |
+                       ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav)) {
+    ImGui::Image(GetOrCreateBackground().get(), ImGui::GetIO().DisplaySize);
+    ImGui::End();
+  }
+  ImGui::PopStyleVar(3);
+  // -- Background
+
+  ImGui::SetNextWindowSize(ImVec2(539 * 1.8f, 424 * 1.8f));
+  ImGui::SetNextWindowPos(
+      ImVec2(ImGui::GetIO().DisplaySize.x / 2 - (540 / 2) * 1.8f,
+             ImGui::GetIO().DisplaySize.y / 2 - (425 / 2) * 1.8f));
+
+  auto flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar |
+              ImGuiWindowFlags_NoMove;
   if (ignoreInput) {
     flags = flags | ImGuiWindowFlags_NoInputs;
   }
 
-  if (ImGui::Begin("Frontend", nullptr,
-                   ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove |
-                       ImGuiWindowFlags_AlwaysAutoResize)) {
+  ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.0f));
+  if (ImGui::Begin("Frontend", nullptr, flags)) {
     if (ImGui::BeginTabBar("tabs")) {
 
       if (ImGui::BeginTabItem("Game List", nullptr)) {
-        for (const auto& path : UWP::GetGames()) {
-          if (ImGui::Button(path.filename().string().c_str(),
-                            ImVec2(540, 30))) {
-            emulator_window_.emulator_->LaunchPath(path.string());
+        ImGui::Text("Total Games: %d", UWP::GetGames().size());
+        if (ImGui::BeginListBox("##gamelist", ImVec2(-1, -1))) {
+          for (const auto& set : UWP::GetGames()) {
+            std::string path, filename;
+            std::tie(path, filename) = set;
 
-            ImGui::End();
-            Close();
+            ImGui::PushID(path.c_str());
+            if (ImGui::Selectable(filename.c_str())) {
+              emulator_window_.emulator_->LaunchPath(path);
 
-            return;
+              ImGui::End();
+              Close();
+
+              return;
+            }
+            ImGui::PopID();
           }
+
+          ImGui::EndListBox();
         }
 
         ImGui::EndTabItem();
       }
 
-    // to-do
-    //if (ImGui::BeginTabItem("Settings", nullptr)) {
-    //  ImGui::EndTabItem();
-    //}
+    if (ImGui::BeginTabItem("Settings", nullptr)) {
+        auto cscale_x = dynamic_cast<cvar::ConfigVar<int>*>(
+            cvar::ConfigVars->find("draw_resolution_scale_x")->second);
+        auto cscale_y = dynamic_cast<cvar::ConfigVar<int>*>(
+            cvar::ConfigVars->find("draw_resolution_scale_y")->second);
+        int scale_value = cscale_x->GetTypedConfigValue();
+        if (ImGui::BeginCombo("##DrawRes", "Select Draw Resolution Scale")) {
+          if (ImGui::Selectable("1x", scale_value == 1)) {
+            cscale_x->SetConfigValue(1);
+            cscale_y->SetConfigValue(1);
+            config::SaveConfig();
+          }
 
-    // I'm giving up on this tonight. List boxes simply do not work (cannot navigate into them) 
-    // even though this code is nearly identical to what I used in dolphin.
-    // Not even sure if you can save cvars.
-    // 
-    // I have spent around 7-8 hours in total debugging non-stop stupid non-issues that has blocked this build.
-    // 
-    //  if (ImGui::BeginTabItem("Paths", nullptr)) {
-    //    if (ImGui::BeginListBox("##folders")) {
-    //      for (auto path : UWP::GetPaths()) {
-    //        if (ImGui::Selectable(path.c_str())) {
-    //          selectedPath = path;
-    //        }
-    //      }
-    //      ImGui::EndListBox();
-    //    }
+          if (ImGui::Selectable("2x", scale_value == 2)) {
+            cscale_x->SetConfigValue(2);
+            cscale_y->SetConfigValue(2);
+            config::SaveConfig();
+          }
 
-    //    if (selectedPath == "") {
-    //      ImGui::BeginDisabled();
-    //    }
+          if (ImGui::Selectable("3x", scale_value == 3)) {
+            cscale_x->SetConfigValue(3);
+            cscale_y->SetConfigValue(3);
+            config::SaveConfig();
+          }
 
-    //    if (ImGui::Button("Clear Paths")) {
-    //      //if (selectedPath != "") {
-    //      //  auto paths = UWP::GetPaths();
-    //      //  paths.erase(std::remove(paths.begin(), paths.end(), selectedPath), paths.end());
-    //      //  UWP::SetGamePaths(paths);
-    //      //  selectedPath = "";
-    //      //}
+          ImGui::EndCombo();
+        }
 
-    //      UWP::SetGamePaths({});
-    //    }
+      auto cvsync = dynamic_cast<cvar::ConfigVar<bool>*>(cvar::ConfigVars->find("vsync")->second);
+      if (ImGui::Checkbox("V-Sync", cvsync->current_value())) {
+        cvsync->SetConfigValue(!cvsync->GetTypedConfigValue());
+        config::SaveConfig();
+      }
+        
+      auto c2xmsaa = dynamic_cast<cvar::ConfigVar<bool>*>(cvar::ConfigVars->find("native_2x_msaa")->second);
+      if (ImGui::Checkbox("Native 2X MSAA", c2xmsaa->current_value())) {
+        c2xmsaa->SetConfigValue(!c2xmsaa->GetTypedConfigValue());
+        config::SaveConfig();
+      }
 
-    //    if (selectedPath == "") {
-    //      ImGui::EndDisabled();
-    //    }
+      auto cmount_cache = dynamic_cast<cvar::ConfigVar<bool>*>(
+          cvar::ConfigVars->find("mount_cache")->second);
+      if (ImGui::Checkbox("Toggle Mount Cache",
+                          cmount_cache->current_value())) {
+        cmount_cache->SetConfigValue(!cmount_cache->GetTypedConfigValue());
+        config::SaveConfig();
+      }
 
-    //    ImGui::SameLine();
-    //    if (ImGui::Button("Add Path")) {
-    //      ignoreInput = true;
-    //      UWP::SelectFolder([this](std::string path) {
-    //        if (path != "") {
-    //          auto paths = UWP::GetPaths();
-    //          paths.push_back(path);
-    //          UWP::SetGamePaths(paths);
-    //        }
+      auto cdxbc = dynamic_cast<cvar::ConfigVar<bool>*>(cvar::ConfigVars->find("dxbc_switch")->second);
+      if (ImGui::Checkbox("Toggle DXBC", cdxbc->current_value())) {
+        cdxbc->SetConfigValue(!cdxbc->GetTypedConfigValue());
+        config::SaveConfig();
+      }
 
-    //        ignoreInput = false;
-    //      });
-    //    }
+      auto cclear_memory_page= dynamic_cast<cvar::ConfigVar<bool>*>(
+          cvar::ConfigVars->find("d3d12_clear_memory_page_state")->second);
+      if (ImGui::Checkbox("Toggle Clear Memory Page State", cclear_memory_page->current_value())) {
+        cclear_memory_page->SetConfigValue(
+            !cclear_memory_page->GetTypedConfigValue());
+        config::SaveConfig();
+      }
 
-    //    ImGui::EndTabItem();
-    //  }
+      auto callowinvalid = dynamic_cast<cvar::ConfigVar<bool>*>(
+          cvar::ConfigVars->find("gpu_allow_invalid_fetch_constants")->second);
+      if (ImGui::Checkbox("Toggle Allow Invalid Fetch Constants",
+                          callowinvalid->current_value())) {
+        callowinvalid->SetConfigValue(
+            !callowinvalid->GetTypedConfigValue());
+        config::SaveConfig();
+      }
 
-    //  ImGui::EndTabBar();
+      auto creadback_resolve = dynamic_cast<cvar::ConfigVar<bool>*>(
+          cvar::ConfigVars->find("d3d12_readback_resolve")->second);
+      if (ImGui::Checkbox("Readback Resolve",
+                          creadback_resolve->current_value())) {
+        creadback_resolve->SetConfigValue(
+            !creadback_resolve->GetTypedConfigValue());
+        config::SaveConfig();
+      }
+
+      auto cpostscaling = dynamic_cast<cvar::ConfigVar<std::string>*>(
+          cvar::ConfigVars->find("postprocess_scaling_and_sharpening")->second);
+      std::string cpostscaling_value = cpostscaling->GetTypedConfigValue();
+      if (ImGui::BeginCombo("##Scaling & Sharpening Effect",
+                            "Scaling & Sharpening Effect")) {
+        if (ImGui::Selectable("None", cpostscaling_value == "")) {
+            cpostscaling->SetConfigValue("");
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("Billinear", cpostscaling_value == "billinear")) {
+            cpostscaling->SetConfigValue("billinear");
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("CAS", cpostscaling_value == "cas")) {
+            cpostscaling->SetConfigValue("cas");
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("FSR", cpostscaling_value == "fsr")) {
+            cpostscaling->SetConfigValue("fsr");
+            config::SaveConfig();
+        }
+
+        ImGui::EndCombo();
+      }
+
+      auto cpostaa = dynamic_cast<cvar::ConfigVar<std::string>*>(
+          cvar::ConfigVars->find("postprocess_antialiasing")->second);
+      std::string postaa_value = cpostaa->GetTypedConfigValue();
+      if (ImGui::BeginCombo("##Anti-Aliasing", "Anti-Aliasing")) {
+        if (ImGui::Selectable("None", postaa_value == "")) {
+            cpostaa->SetConfigValue("");
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("FXAA", postaa_value == "fxaa")) {
+            cpostaa->SetConfigValue("fxaa");
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("FXAA Extreme", postaa_value == "fxaa_extreme")) {
+            cpostaa->SetConfigValue("fxaa_extreme");
+            config::SaveConfig();
+        }
+
+        ImGui::EndCombo();
+      }
+
+      ImGui::Spacing();
+      ImGui::Separator();
+
+      ImGui::TextWrapped(
+          "Note: Xenia-Canary is a WIP emulator.\nMost settings should be considered hacks, and may cause (or fix) crashes and other problems. Edit these settings at your own risk.");
+
+      ImGui::EndTabItem();
     }
+
+    if (ImGui::BeginTabItem("Paths", nullptr)) {
+      if (ImGui::BeginListBox("##folders")) {
+        for (auto path : UWP::GetPaths()) {
+          if (ImGui::Selectable(path.c_str())) {
+            selectedPath = path;
+          }
+        }
+        ImGui::EndListBox();
+      }
+
+      if (selectedPath == "") {
+        ImGui::BeginDisabled();
+      }
+
+      if (ImGui::Button("Remove Path")) {
+        if (selectedPath != "") {
+          auto paths = UWP::GetPaths();
+          paths.erase(std::remove(paths.begin(), paths.end(), selectedPath), paths.end());
+          UWP::SetGamePaths(paths);
+          selectedPath = "";
+        }
+      }
+
+      if (selectedPath == "") {
+        ImGui::EndDisabled();
+      }
+
+      ImGui::SameLine();
+      if (ImGui::Button("Add Path")) {
+        ignoreInput = true;
+        UWP::SelectFolder([this](std::string path) {
+          if (path != "") {
+            auto paths = UWP::GetPaths();
+            paths.push_back(path);
+            UWP::SetGamePaths(paths);
+          }
+
+          ignoreInput = false;
+        });
+      }
+
+      ImGui::Spacing();
+      ImGui::Separator();
+
+      auto ccache_root = dynamic_cast<cvar::ConfigVar<std::filesystem::path>*>(
+          cvar::ConfigVars->find("cache_root")->second);
+      auto ccontent_root =
+          dynamic_cast<cvar::ConfigVar<std::filesystem::path>*>(
+          cvar::ConfigVars->find("content_root")->second);
+      auto cstorage_root =
+          dynamic_cast<cvar::ConfigVar<std::filesystem::path>*>(
+          cvar::ConfigVars->find("storage_root")->second);
+
+      if (ImGui::Button("Set Config Folders Path")) {
+        ignoreInput = true;
+        UWP::SelectFolder([this, ccache_root, ccontent_root,
+                           cstorage_root](std::string path) {
+          if (path != "") {
+            ccache_root->SetConfigValue(std::filesystem::path(path + "\\cache"));
+            ccontent_root->SetConfigValue(std::filesystem::path(path + "\\content"));
+            cstorage_root->SetConfigValue(std::filesystem::path(path + "\\storage"));
+            config::SaveConfig();
+          }
+
+          ignoreInput = false;
+        });
+      }
+
+      ImGui::SameLine();
+      if (ImGui::Button("Reset Config Folders Path")) {
+        ccache_root->SetConfigValue("");
+        ccontent_root->SetConfigValue("");
+        cstorage_root->SetConfigValue("");
+        config::SaveConfig();
+      }
+
+      ImGui::EndTabItem();
+    }
+
+    ImGui::EndTabBar();
+  }
     
     ImGui::End();
   }
+  ImGui::PopStyleColor();
+}
+
+std::shared_ptr<ui::ImmediateTexture> EmulatorWindow::WinRTFrontendDialog::GetOrCreateBackground() {
+  if (background_tex_ != nullptr) {
+    return background_tex_;
+  }
+
+  int width = 0, height = 0, comp = 0;
+  auto data = stbi_load("Assets/background.png", &width, &height, &comp, 4);
+
+  auto tex =
+      emulator_window_.immediate_drawer_->CreateTexture(
+      static_cast<uint32_t>(width), static_cast<uint32_t>(height), xe::ui::ImmediateTextureFilter::kLinear, false, data);
+
+  background_tex_ = std::move(tex);
+  return background_tex_;
 }
 
 }  // namespace app

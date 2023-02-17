@@ -166,12 +166,14 @@ class EmulatorWindow {
     WinRTFrontendDialog(ui::ImGuiDrawer* imgui_drawer,
                    EmulatorWindow& emulator_window)
         : ui::ImGuiDialog(imgui_drawer), emulator_window_(emulator_window) {}
-
    protected:
     void OnDraw(ImGuiIO& io) override;
 
    private:
+    std::shared_ptr<ui::ImmediateTexture> GetOrCreateBackground();
+
     EmulatorWindow& emulator_window_;
+    std::shared_ptr<ui::ImmediateTexture> background_tex_ = nullptr;
     std::string selectedPath;
     bool ignoreInput = false;
   };

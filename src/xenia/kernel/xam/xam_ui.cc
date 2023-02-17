@@ -232,8 +232,10 @@ class MessageBoxDialog : public XamDialog {
       has_opened_ = true;
       first_draw = true;
     }
-    if (ImGui::BeginPopupModal(title_.c_str(), nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
+    auto flags = ImGuiWindowFlags_AlwaysAutoResize | 0;
+    if (first_draw) flags = flags | ImGuiWindowFlags_NoInputs;
+
+    if (ImGui::BeginPopupModal(title_.c_str(), nullptr, flags)) {
       if (description_.size()) {
         ImGui::Text("%s", description_.c_str());
       }
