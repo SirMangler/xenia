@@ -39,7 +39,7 @@
           </uap:FileTypeAssociation>
         </uap:Extension>
         <uap:Extension Category="windows.protocol">
-          <uap:Protocol Name="xenia-canary">
+          <uap:Protocol Name="xeniacanary">
             <uap:DisplayName>Xenia Canary</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>

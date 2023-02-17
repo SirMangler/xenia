@@ -40,7 +40,7 @@ static std::vector<std::string> s_scanned_paths;
 void UWP::StartXenia() {
   app_context = std::make_unique<ui::UWPWindowedAppContext>();
   app = xe::ui::GetWindowedAppCreator()(*app_context.get());
-
+  
   xe::InitializeWin32App(app->GetName());
 
   if (app->OnInitialize()) {

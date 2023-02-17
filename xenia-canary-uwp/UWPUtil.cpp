@@ -22,7 +22,7 @@
 
 using namespace winrt::Windows::Storage::Pickers;
 namespace UWP {
-std::string m_game_path;
+std::string m_game_path = "";
 int m_DPI = 96;
 
 winrt::fire_and_forget PickGame(xe::Emulator* emu) {
@@ -54,6 +54,8 @@ winrt::fire_and_forget PickFolderAsync(
 
   callback(path);
 }
+
+bool HasGamePath() { return m_game_path != ""; }
 
 void SelectGameFromWinRT(xe::Emulator* emu) { 
   if (m_game_path == "")

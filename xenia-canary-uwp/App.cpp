@@ -66,9 +66,6 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 
     void Run()
     {
-        CoreWindow window = CoreWindow::GetForCurrentThread();
-        window.Activate();
-
         auto navigation = winrt::Windows::UI::Core::SystemNavigationManager::GetForCurrentView();
 
         // UWP on Xbox One triggers a back request whenever the B button is
@@ -95,7 +92,8 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
-        CoreDispatcher dispatcher = window.Dispatcher();
+        CoreDispatcher dispatcher =
+            CoreWindow::GetForCurrentThread().Dispatcher();
         dispatcher.ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
 
         if (!m_launchOnExit.empty()) {
@@ -133,8 +131,8 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
               std::string argVal = winrt::to_string(arg.Value());
 
               // Strip the executable from the cmd argument
-              if (argVal.rfind("xenia-canary.exe", 0) == 0) {
-                argVal = argVal.substr(16, argVal.length());
+              if (argVal.rfind("xeniacanary.exe", 0) == 0) {
+                argVal = argVal.substr(15, argVal.length());
               }
 
               std::istringstream iss(argVal);
