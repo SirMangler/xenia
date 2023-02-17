@@ -23,6 +23,7 @@
 
 #include "XeniaUWP.h"
 #include "UWPUtil.h"
+#include "WinRTKeyboard.h"
 
     //#include "xenia/base/main_win.h"
 
@@ -159,14 +160,22 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
         window.Activate();
     }
 
+    void OnCharacterReceived(
+        winrt::Windows::UI::Core::CoreWindow const& /* sender */,
+        winrt::Windows::UI::Core::
+            CharacterReceivedEventArgs const& e /* args */) {
+        UWP::HandleCharacter(e.KeyCode());
+    }
 
     void SetWindow(CoreWindow const & window)
     {
-
+        window.CharacterReceived({this, &App::OnCharacterReceived});
     }
 };
 
 int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
+    winrt::init_apartment();
     CoreApplication::Run(make<App>());
+    winrt::uninit_apartment();
 }

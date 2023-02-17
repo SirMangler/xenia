@@ -128,6 +128,7 @@
     <ClInclude Include="UWPUtil.h" />
     <ClInclude Include="windowed_app_context_uwp.h" />
     <ClInclude Include="window_uwp.h" />
+    <ClInclude Include="WinRTKeyboard.h" />
     <ClInclude Include="XeniaUWP.h" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClCompile Include="UWPUtil.cpp" />
     <ClCompile Include="windowed_app_context_uwp.cc" />
     <ClCompile Include="window_uwp.cc" />
+    <ClCompile Include="WinRTKeyboard.cpp" />
     <ClCompile Include="XeniaUWP.cpp" />
   </ItemGroup>
   <ItemGroup>
