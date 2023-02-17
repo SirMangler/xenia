@@ -3,7 +3,7 @@
   <Identity
     Name="27d6ba69-e4f1-4b69-b391-8238bab5a431"
     Publisher="CN=SirMangler"
-    Version="1.0.1.0" />
+    Version="1.1.0.0" />
   <mp:PhoneIdentity PhoneProductId="27d6ba69-e4f1-4b69-b391-8238bab5a431" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
   <Properties>
     <DisplayName>xenia-canary-uwp</DisplayName>
@@ -37,6 +37,11 @@
               <uap:FileType>.xex</uap:FileType>
             </uap:SupportedFileTypes>
           </uap:FileTypeAssociation>
+        </uap:Extension>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="xenia-canary">
+            <uap:DisplayName>Xenia Canary</uap:DisplayName>
+          </uap:Protocol>
         </uap:Extension>
       </Extensions>
     </Application>

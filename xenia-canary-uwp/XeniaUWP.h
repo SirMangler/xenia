@@ -19,8 +19,8 @@ void ExecutePendingFunctionsFromUIThread();
 void RegisterXeniaWindow(xe::ui::Window* window);
 void UpdateImGuiIO();
 
-void InitialisePaths();
-std::vector<std::filesystem::path> GetGames();
+void RefreshPaths();
+std::vector<std::tuple<std::string, std::string>> GetGames();
 std::vector<std::string> GetPaths();
 void SetGamePaths(std::vector<std::string> paths);
 }
