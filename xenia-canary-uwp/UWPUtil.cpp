@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fstream> 
 #include <string>
+#include <ppl.h>
+#include <ppltasks.h>
+#include <agents.h>
 
 #include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.ApplicationModel.h>
@@ -73,6 +76,7 @@ std::string GetLocalState() {
   return winrt::to_string(
       winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path());
 }
+
 int GetCoreDPI() { return m_DPI; }
 
 void SetAutomaticLaunch(std::string game_path) { m_game_path = game_path; }

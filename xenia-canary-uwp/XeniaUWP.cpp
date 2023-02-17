@@ -107,7 +107,7 @@ void RecurseFolderForGames(std::string path) {
           if (file.path().has_parent_path())
             filename = file.path().parent_path().filename().string();
         } else {
-          filename = file.path().filename().string();
+          filename = file.path().stem().string();
         }
 
         s_games.push_back({path, filename});

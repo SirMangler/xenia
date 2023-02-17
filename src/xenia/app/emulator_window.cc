@@ -1933,6 +1933,12 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         config::SaveConfig();
       }
 
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::TextWrapped(
+          "Note: Please remember to do your USB filesystem setup, or paths to "
+          "your USB will not work properly!");
+
       ImGui::EndTabItem();
     }
 

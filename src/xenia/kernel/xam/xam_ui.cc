@@ -20,6 +20,7 @@
 #include "xenia/ui/window.h"
 #include "xenia/ui/windowed_app_context.h"
 #include "xenia/xbox.h"
+#include "xenia-canary-uwp/WinRTKeyboard.h"
 
 namespace xe {
 namespace kernel {
@@ -224,16 +225,20 @@ class MessageBoxDialog : public XamDialog {
   }
 
   uint32_t chosen_button() const { return chosen_button_; }
-
   void OnDraw(ImGuiIO& io) override {
     bool first_draw = false;
     if (!has_opened_) {
       ImGui::OpenPopup(title_.c_str());
       has_opened_ = true;
       first_draw = true;
+      clock_ = std::chrono::high_resolution_clock::now();
     }
-    auto flags = ImGuiWindowFlags_AlwaysAutoResize | 0;
-    if (first_draw) flags = flags | ImGuiWindowFlags_NoInputs;
+
+    auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_None;
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto interval = std::chrono::duration_cast<std::chrono::milliseconds>(now - clock_);
+    if (interval.count() < 500) flags |= ImGuiWindowFlags_NoInputs;
 
     if (ImGui::BeginPopupModal(title_.c_str(), nullptr, flags)) {
       if (description_.size()) {
@@ -266,6 +271,8 @@ class MessageBoxDialog : public XamDialog {
   std::vector<std::string> buttons_;
   uint32_t default_button_ = 0;
   uint32_t chosen_button_ = 0;
+  long input_interval_ = 0L;
+  std::chrono::high_resolution_clock::time_point clock_;
 };
 
 static dword_result_t XamShowMessageBoxUi(
@@ -389,9 +396,9 @@ class KeyboardInputDialog : public XamDialog {
       }
       if (first_draw) {
         ImGui::SetKeyboardFocusHere();
+        UWP::ShowKeyboard(&text_buffer_);
       }
-      if (ImGui::InputText("##body", text_buffer_.data(), text_buffer_.size(),
-                           ImGuiInputTextFlags_EnterReturnsTrue)) {
+      if (ImGui::InputText("##body", text_buffer_.data(), text_buffer_.size(), ImGuiInputTextFlags_None)) {
         text_ = std::string(text_buffer_.data(), text_buffer_.size());
         cancelled_ = false;
         ImGui::CloseCurrentPopup();

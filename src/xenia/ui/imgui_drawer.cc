@@ -151,11 +151,12 @@ void ImGuiDrawer::Initialize() {
   io.IniFilename = nullptr;
 
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
   io.NavVisible = true;
-  io.DisplayFramebufferScale.x = 2.2f;
-  io.DisplayFramebufferScale.y = 2.2f;
-  io.FontGlobalScale = 2.2f;  
+  io.DisplayFramebufferScale.x = 2.4f;
+  io.DisplayFramebufferScale.y = 2.4f;
+  io.FontGlobalScale = 2.4f;  
 
   // Setup the font glyphs.
   ImFontConfig font_config;
