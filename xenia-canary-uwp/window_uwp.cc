@@ -56,17 +56,16 @@ std::unique_ptr<Surface> UWPWindow::CreateSurfaceImpl(
 bool UWPWindow::OpenImpl() {
   uint32_t width = 1920;
   uint32_t height = 1080;
-  // Temporarily disabled until the scaling/zoom issue is resolved
-  //GAMING_DEVICE_MODEL_INFORMATION info = {};
-  //GetGamingDeviceModelInformation(&info);
-  //if (info.vendorId == GAMING_DEVICE_VENDOR_ID_MICROSOFT) {
-  //  auto hdi = winrt::Windows::Graphics::Display::Core::HdmiDisplayInformation::
-  //      GetForCurrentView();
-  //  if (hdi) {
-  //    width = hdi.GetCurrentDisplayMode().ResolutionWidthInRawPixels();
-  //    height = hdi.GetCurrentDisplayMode().ResolutionHeightInRawPixels();
-  //  }
-  //}
+  GAMING_DEVICE_MODEL_INFORMATION info = {};
+  GetGamingDeviceModelInformation(&info);
+  if (info.vendorId == GAMING_DEVICE_VENDOR_ID_MICROSOFT) {
+    auto hdi = winrt::Windows::Graphics::Display::Core::HdmiDisplayInformation::
+        GetForCurrentView();
+    if (hdi) {
+      width = hdi.GetCurrentDisplayMode().ResolutionWidthInRawPixels();
+      height = hdi.GetCurrentDisplayMode().ResolutionHeightInRawPixels();
+    }
+  }
 
   WindowDestructionReceiver destruction_receiver(this);
   OnActualSizeUpdate(width, height,
