@@ -1680,11 +1680,12 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
   }
   ImGui::PopStyleVar(3);
   // -- Background
-
-  ImGui::SetNextWindowSize(ImVec2(539 * 1.8f, 424 * 1.8f));
-  ImGui::SetNextWindowPos(
-      ImVec2(ImGui::GetIO().DisplaySize.x / 2 - (540 / 2) * 1.8f,
-             ImGui::GetIO().DisplaySize.y / 2 - (425 / 2) * 1.8f));
+  float display_scale = ((float) io.DisplaySize.x / 1920.0f);
+  ImGui::SetNextWindowSize(
+      ImVec2(539 * 1.8f * display_scale,
+             424 * 1.8f * display_scale));
+  ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - ((540 * 1.8f * display_scale) / 2),
+                                 ImGui::GetIO().DisplaySize.y / 2 - ((425 * 1.8f * display_scale) / 2)));
 
   auto flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar |
               ImGuiWindowFlags_NoMove;

@@ -19,17 +19,16 @@ bool xe::ui::UWPWindowSurface::GetSizeImpl(uint32_t& width_out,
                                            uint32_t& height_out) const {
   width_out = 1920;
   height_out = 1080;
-  // Temporarily disabled until the scaling/zoom issue is resolved
-  //GAMING_DEVICE_MODEL_INFORMATION info = {};
-  //GetGamingDeviceModelInformation(&info);
-  //if (info.vendorId == GAMING_DEVICE_VENDOR_ID_MICROSOFT) {
-  //  auto hdi = winrt::Windows::Graphics::Display::Core::HdmiDisplayInformation::
-  //      GetForCurrentView();
-  //  if (hdi) {
-  //    width_out = hdi.GetCurrentDisplayMode().ResolutionWidthInRawPixels();
-  //    height_out = hdi.GetCurrentDisplayMode().ResolutionHeightInRawPixels();
-  //  }
-  //}
+  GAMING_DEVICE_MODEL_INFORMATION info = {};
+  GetGamingDeviceModelInformation(&info);
+  if (info.vendorId == GAMING_DEVICE_VENDOR_ID_MICROSOFT) {
+    auto hdi = winrt::Windows::Graphics::Display::Core::HdmiDisplayInformation::
+        GetForCurrentView();
+    if (hdi) {
+      width_out = hdi.GetCurrentDisplayMode().ResolutionWidthInRawPixels();
+      height_out = hdi.GetCurrentDisplayMode().ResolutionHeightInRawPixels();
+    }
+  }
 
   return true;
 }

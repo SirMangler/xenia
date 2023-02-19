@@ -111,7 +111,7 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
     }
 
     void OnActivate(
-        const winrt::Windows::ApplicationModel::Core::CoreApplicationView&,
+        const winrt::Windows::ApplicationModel::Core::CoreApplicationView& v,
         const winrt::Windows::ApplicationModel::Activation::IActivatedEventArgs&
             args) {
         std::stringstream filePath;
