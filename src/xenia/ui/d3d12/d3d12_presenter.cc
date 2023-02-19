@@ -285,10 +285,11 @@ D3D12Presenter::ConnectOrReconnectPaintingToSurfaceFromUIThread(
     // and the UI becoming stretched and then jumping to normal. If it's
     // possible to cover the entire surface without stretching, don't stretch.
     // After resizing, the presenter repaints as soon as possible anyway, so
-    swap_chain_desc.Scaling = (new_swap_chain_width == new_surface_width &&
+    swap_chain_desc.Scaling =
+        DXGI_SCALING_STRETCH;  /*(new_swap_chain_width == new_surface_width &&
                                new_swap_chain_height == new_surface_height)
                                   ? DXGI_SCALING_NONE
-                                  : DXGI_SCALING_STRETCH;
+                                  : DXGI_SCALING_STRETCH;*/
     swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
     swap_chain_desc.Flags = 0;
