@@ -1961,8 +1961,24 @@ std::shared_ptr<ui::ImmediateTexture> EmulatorWindow::WinRTFrontendDialog::GetOr
     return background_tex_;
   }
 
+  std::string path;
+
+  auto ccontent_root = dynamic_cast<cvar::ConfigVar<std::filesystem::path>*>(
+      cvar::ConfigVars->find("content_root")->second);
+
+  std::string content_path = ccontent_root->GetTypedConfigValue().string();
+  if (!content_path.empty()) {
+    path = content_path + "/background.png";
+  } else {
+    path = UWP::GetLocalState() + "/content/background.png";
+  }
+
+  if (!std::filesystem::exists(path)) {
+    path = "Assets/background.png";
+  }
+
   int width = 0, height = 0, comp = 0;
-  auto data = stbi_load("Assets/background.png", &width, &height, &comp, 4);
+  auto data = stbi_load(path.c_str(), &width, &height, &comp, 4);
 
   auto tex =
       emulator_window_.immediate_drawer_->CreateTexture(
