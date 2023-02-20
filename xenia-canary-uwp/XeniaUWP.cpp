@@ -2,6 +2,8 @@
 
 #include "UWPUtil.h"
 
+#include <fstream>
+
 #include "windowed_app_context_uwp.h"
 #include "surface_uwp.h"
 #include "window_uwp.h"
@@ -77,7 +79,7 @@ void UWP::UpdateImGuiIO() {
   io.AddKeyEvent(ImGuiKey_GamepadDpadUp, state.gamepad.buttons & X_INPUT_GAMEPAD_DPAD_UP);
   io.AddKeyEvent(ImGuiKey_GamepadDpadDown, state.gamepad.buttons & X_INPUT_GAMEPAD_DPAD_DOWN);
 }
-
+#pragma optimize("", off)
 void RecurseFolderForGames(std::string path) {
   try {
     for (auto file : std::filesystem::directory_iterator(path)) {
@@ -88,8 +90,7 @@ void RecurseFolderForGames(std::string path) {
 
       if (!file.is_regular_file()) continue;
       if (file.path().has_extension()) {
-        if (file.path().extension().compare(".xex") != 0 &&
-            file.path().extension().compare(".XEX") != 0)
+        if (_stricmp(file.path().extension().string().c_str(), ".xex") != 0)
           continue;
       }
 
@@ -98,12 +99,12 @@ void RecurseFolderForGames(std::string path) {
       char MAGIC[5];
       std::ifstream in(path, std::ios::binary);
       in.read(MAGIC, 4);
-      in.close();
 
       MAGIC[4] = '\0';
-      if (strcmp(MAGIC, "XEX2") == 0 || strcmp(MAGIC, "LIVE") == 0) {
+      if (strcmp(MAGIC, "XEX2") == 0) {
         std::string filename = "default";
-        if (file.path().filename().string() == "default.xex") {
+        if (_stricmp(file.path().filename().string().c_str(),
+                          "default.xex") == 0) {
           if (file.path().has_parent_path())
             filename = file.path().parent_path().filename().string();
         } else {
@@ -111,12 +112,28 @@ void RecurseFolderForGames(std::string path) {
         }
 
         s_games.push_back({path, filename});
+      } else if (strcmp(MAGIC, "LIVE") == 0) {
+        in.seekg(0x412);
+
+        char data[32];
+        for (int i = 0; i < 32; i++) {
+          char c;
+          in.read(&c, 2);
+          std::wctomb(&data[i], static_cast<wchar_t>(c));
+
+          if (c == 0) break;
+        }
+
+        s_games.push_back({path, data});
       }
+
+      in.close();
     }
   } catch (std::exception) {
     // This folder can't be opened.
   }
 }
+#pragma optimize("", on)
 
 void UWP::RefreshPaths() {
   s_paths.clear();
