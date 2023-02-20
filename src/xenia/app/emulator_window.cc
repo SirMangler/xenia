@@ -1688,7 +1688,7 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
                                  ImGui::GetIO().DisplaySize.y / 2 - ((425 * 1.8f * display_scale) / 2)));
 
   auto flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar |
-              ImGuiWindowFlags_NoMove;
+              ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize;
   if (ignoreInput) {
     flags = flags | ImGuiWindowFlags_NoInputs;
   }
@@ -1723,12 +1723,19 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
       }
 
     if (ImGui::BeginTabItem("Settings", nullptr)) {
+        std::string tooltip =
+            "Note: Xenia-Canary is a WIP emulator.\nMost settings should be "
+            "considered hacks, and may cause (or fix) crashes and other "
+            "problems. Edit these settings at your own risk.";
+
         auto cscale_x = dynamic_cast<cvar::ConfigVar<int>*>(
             cvar::ConfigVars->find("draw_resolution_scale_x")->second);
         auto cscale_y = dynamic_cast<cvar::ConfigVar<int>*>(
             cvar::ConfigVars->find("draw_resolution_scale_y")->second);
         int scale_value = cscale_x->GetTypedConfigValue();
-        if (ImGui::BeginCombo("##DrawRes", "Select Draw Resolution Scale")) {
+        char scale_value_label[32];
+        snprintf(scale_value_label, 32, "%dx", scale_value);
+        if (ImGui::BeginCombo("Draw Resolution Scale", scale_value_label)) {
           if (ImGui::Selectable("1x", scale_value == 1)) {
             cscale_x->SetConfigValue(1);
             cscale_y->SetConfigValue(1);
@@ -1750,16 +1757,28 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
           ImGui::EndCombo();
         }
 
+        if (ImGui::IsItemFocused()) {
+          tooltip = cscale_x->description();
+        }
+
       auto cvsync = dynamic_cast<cvar::ConfigVar<bool>*>(cvar::ConfigVars->find("vsync")->second);
       if (ImGui::Checkbox("V-Sync", cvsync->current_value())) {
         cvsync->SetConfigValue(!cvsync->GetTypedConfigValue());
         config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = cvsync->description();
       }
         
       auto c2xmsaa = dynamic_cast<cvar::ConfigVar<bool>*>(cvar::ConfigVars->find("native_2x_msaa")->second);
       if (ImGui::Checkbox("Native 2X MSAA", c2xmsaa->current_value())) {
         c2xmsaa->SetConfigValue(!c2xmsaa->GetTypedConfigValue());
         config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = c2xmsaa->description();
       }
 
       auto cmount_cache = dynamic_cast<cvar::ConfigVar<bool>*>(
@@ -1770,10 +1789,18 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         config::SaveConfig();
       }
 
+      if (ImGui::IsItemFocused()) {
+        tooltip = cmount_cache->description();
+      }
+
       auto cdxbc = dynamic_cast<cvar::ConfigVar<bool>*>(cvar::ConfigVars->find("dxbc_switch")->second);
-      if (ImGui::Checkbox("Toggle DXBC", cdxbc->current_value())) {
+      if (ImGui::Checkbox("Toggle DXBC Switch", cdxbc->current_value())) {
         cdxbc->SetConfigValue(!cdxbc->GetTypedConfigValue());
         config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = cdxbc->description();
       }
 
       auto cclear_memory_page= dynamic_cast<cvar::ConfigVar<bool>*>(
@@ -1782,6 +1809,10 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         cclear_memory_page->SetConfigValue(
             !cclear_memory_page->GetTypedConfigValue());
         config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = cclear_memory_page->description();
       }
 
       auto callowinvalid = dynamic_cast<cvar::ConfigVar<bool>*>(
@@ -1793,6 +1824,10 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         config::SaveConfig();
       }
 
+      if (ImGui::IsItemFocused()) {
+        tooltip = callowinvalid->description();
+      }
+
       auto creadback_resolve = dynamic_cast<cvar::ConfigVar<bool>*>(
           cvar::ConfigVars->find("d3d12_readback_resolve")->second);
       if (ImGui::Checkbox("Readback Resolve",
@@ -1802,11 +1837,30 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         config::SaveConfig();
       }
 
+      if (ImGui::IsItemFocused()) {
+        tooltip = creadback_resolve->description();
+      }
+
+      auto c_host_guest_stacksync = dynamic_cast<cvar::ConfigVar<bool>*>(
+          cvar::ConfigVars->find("enable_host_guest_stack_synchronization")->second);
+      if (ImGui::Checkbox("Toggle Host Guest Stack Sync",
+                          c_host_guest_stacksync->current_value())) {
+        c_host_guest_stacksync->SetConfigValue(
+            !c_host_guest_stacksync->GetTypedConfigValue());
+        config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = c_host_guest_stacksync->description();
+      }
+
       auto cpostscaling = dynamic_cast<cvar::ConfigVar<std::string>*>(
           cvar::ConfigVars->find("postprocess_scaling_and_sharpening")->second);
       std::string cpostscaling_value = cpostscaling->GetTypedConfigValue();
-      if (ImGui::BeginCombo("##Scaling & Sharpening Effect",
-                            "Scaling & Sharpening Effect")) {
+      if (ImGui::BeginCombo(
+              "Scaling & Sharpening Effect",
+              (cpostscaling_value == "" ? "None"
+                                        : cpostscaling_value.c_str()))) {
         if (ImGui::Selectable("None", cpostscaling_value == "")) {
             cpostscaling->SetConfigValue("");
             config::SaveConfig();
@@ -1830,10 +1884,14 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         ImGui::EndCombo();
       }
 
+      if (ImGui::IsItemFocused()) {
+        tooltip = cpostscaling->description();
+      }
+
       auto cpostaa = dynamic_cast<cvar::ConfigVar<std::string>*>(
           cvar::ConfigVars->find("postprocess_antialiasing")->second);
       std::string postaa_value = cpostaa->GetTypedConfigValue();
-      if (ImGui::BeginCombo("##Anti-Aliasing", "Anti-Aliasing")) {
+      if (ImGui::BeginCombo("Anti-Aliasing", (postaa_value == "" ? "None" : postaa_value.c_str()))) {
         if (ImGui::Selectable("None", postaa_value == "")) {
             cpostaa->SetConfigValue("");
             config::SaveConfig();
@@ -1852,11 +1910,77 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         ImGui::EndCombo();
       }
 
+      if (ImGui::IsItemFocused()) {
+        tooltip = cpostaa->description();
+      }
+
+      auto cfsr_max_upsampling = dynamic_cast<cvar::ConfigVar<uint32_t>*>(
+          cvar::ConfigVars->find("postprocess_ffx_fsr_max_upsampling_passes")->second);
+      uint32_t fsr_max_upsampling_value =
+          cfsr_max_upsampling->GetTypedConfigValue();
+      char value_label[32];
+      snprintf(value_label, 32, "%dx", fsr_max_upsampling_value);
+      if (ImGui::BeginCombo("PostFX FSR Max Upsampling Passes", value_label)) {
+        if (ImGui::Selectable("1x", fsr_max_upsampling_value == 1)) {
+            cfsr_max_upsampling->SetConfigValue(1);
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("2x", fsr_max_upsampling_value == 2)) {
+            cfsr_max_upsampling->SetConfigValue(2);
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("3x", fsr_max_upsampling_value == 3)) {
+            cfsr_max_upsampling->SetConfigValue(3);
+            config::SaveConfig();
+        }
+
+        if (ImGui::Selectable("4x", fsr_max_upsampling_value == 4)) {
+            cfsr_max_upsampling->SetConfigValue(4);
+            config::SaveConfig();
+        }
+
+        ImGui::EndCombo();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = cfsr_max_upsampling->description();
+      }
+
+      auto cffx_cas_additional = dynamic_cast<cvar::ConfigVar<double>*>(
+          cvar::ConfigVars->find("postprocess_ffx_cas_additional_sharpness")
+              ->second);
+      float cas_additional = (float) cffx_cas_additional->GetTypedConfigValue();
+      if (ImGui::SliderFloat("PostFX CAS Additional Sharpness", &cas_additional,
+                             0, 1.0f, "%f")) {
+        cffx_cas_additional->SetConfigValue((double) cas_additional);
+        config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = cffx_cas_additional->description();
+      }
+
+      auto cffx_fsr_sharpness_reduction = dynamic_cast<cvar::ConfigVar<double>*>(
+          cvar::ConfigVars->find("postprocess_ffx_fsr_sharpness_reduction")
+              ->second);
+      float cfsr_sharpness_reduction =
+          (float) cffx_fsr_sharpness_reduction->GetTypedConfigValue();
+      if (ImGui::SliderFloat("PostFX FSR Sharpenss Reduction",
+                             &cfsr_sharpness_reduction, 0, 1.0f, "%f")) {
+        cffx_fsr_sharpness_reduction->SetConfigValue((double) cfsr_sharpness_reduction);
+        config::SaveConfig();
+      }
+
+      if (ImGui::IsItemFocused()) {
+        tooltip = cffx_fsr_sharpness_reduction->description();
+      }
+
       ImGui::Spacing();
       ImGui::Separator();
 
-      ImGui::TextWrapped(
-          "Note: Xenia-Canary is a WIP emulator.\nMost settings should be considered hacks, and may cause (or fix) crashes and other problems. Edit these settings at your own risk.");
+      ImGui::TextWrapped(tooltip.c_str());
 
       ImGui::EndTabItem();
     }
