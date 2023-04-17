@@ -1,6 +1,7 @@
 #include "XeniaUWP.h"
 
 #include "UWPUtil.h"
+#include "WinRTKeyboard.h"
 
 #include <fstream>
 
@@ -65,13 +66,30 @@ void UWP::ExecutePendingFunctionsFromUIThread() {
 void UWP::RegisterXeniaWindow(xe::ui::Window* window) { s_window = window; }
 
 void UWP::UpdateImGuiIO() {
+  ImGuiIO& io = ImGui::GetIO();
+  io.AddKeyEvent(ImGuiKey_Backspace, false);
+  io.AddKeyEvent(ImGuiKey_Enter, false);
+
+  {
+    std::unique_lock lk(UWP::g_buffer_mutex);
+    for (uint32_t c : UWP::g_char_buffer) {
+      io.AddInputCharacter(c);
+
+      if (c == '\b') {
+        io.AddKeyEvent(ImGuiKey_Backspace, true);
+      } else if (c == '\r') {
+        io.AddKeyEvent(ImGuiKey_Enter, true);
+      }
+    }
+    UWP::g_char_buffer.clear();
+  }
+
   auto driver = static_cast<xe::ui::UWPWindow*>(s_window)->xinputdriver();
   if (!driver) return;
 
   hid::X_INPUT_STATE state;
   if (driver->GetState(0, &state) != X_STATUS_SUCCESS) return;
 
-  auto& io = ImGui::GetIO();
   io.AddKeyEvent(ImGuiKey_GamepadFaceDown, state.gamepad.buttons & X_INPUT_GAMEPAD_A);
   io.AddKeyEvent(ImGuiKey_GamepadFaceRight, state.gamepad.buttons & X_INPUT_GAMEPAD_B);
   io.AddKeyEvent(ImGuiKey_GamepadDpadLeft, state.gamepad.buttons & X_INPUT_GAMEPAD_DPAD_LEFT);
@@ -79,7 +97,7 @@ void UWP::UpdateImGuiIO() {
   io.AddKeyEvent(ImGuiKey_GamepadDpadUp, state.gamepad.buttons & X_INPUT_GAMEPAD_DPAD_UP);
   io.AddKeyEvent(ImGuiKey_GamepadDpadDown, state.gamepad.buttons & X_INPUT_GAMEPAD_DPAD_DOWN);
 }
-#pragma optimize("", off)
+
 void RecurseFolderForGames(std::string path) {
   try {
     for (auto file : std::filesystem::directory_iterator(path)) {
@@ -133,7 +151,6 @@ void RecurseFolderForGames(std::string path) {
     // This folder can't be opened.
   }
 }
-#pragma optimize("", on)
 
 void UWP::RefreshPaths() {
   s_paths.clear();

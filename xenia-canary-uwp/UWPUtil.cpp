@@ -24,6 +24,7 @@ using namespace winrt::Windows::Storage::Pickers;
 namespace UWP {
 std::string m_game_path = "";
 int m_DPI = 96;
+bool m_ui_open = false;
 
 winrt::fire_and_forget PickGame(xe::Emulator* emu) {
   FileOpenPicker openPicker;
@@ -55,6 +56,22 @@ winrt::fire_and_forget PickFolderAsync(
   callback(path);
 }
 
+winrt::fire_and_forget PickFileAsync(
+    std::function<void(std::string)> callback) {
+  FileOpenPicker openPicker;
+  openPicker.ViewMode(PickerViewMode::List);
+  openPicker.SuggestedStartLocation(PickerLocationId::ComputerFolder);
+  openPicker.FileTypeFilter().Append(L"*");
+
+  auto folder = co_await openPicker.PickSingleFileAsync();
+  std::string path = "";
+  if (folder) {
+    path = winrt::to_string(folder.Path().data());
+  }
+
+  callback(path);
+}
+
 bool HasGamePath() { return m_game_path != ""; }
 
 void SelectGameFromWinRT(xe::Emulator* emu) { 
@@ -66,6 +83,10 @@ void SelectGameFromWinRT(xe::Emulator* emu) {
 
 void SelectFolder(std::function<void(std::string)> callback) {
   PickFolderAsync(callback);
+}
+
+void SelectFile(std::function<void(std::string)> callback) {
+  PickFileAsync(callback);
 }
 
 std::string GetLocalCache() {
@@ -83,4 +104,6 @@ int GetCoreDPI() { return m_DPI; }
 
 void SetAutomaticLaunch(std::string game_path) { m_game_path = game_path; }
 void SetDPI(int DPI) { m_DPI = DPI; }
+bool IsUIOpen() { return m_ui_open; }
+void SetUIOpen(bool is_open) { m_ui_open = is_open; }
 }

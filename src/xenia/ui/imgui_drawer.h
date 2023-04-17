@@ -56,6 +56,8 @@ class ImGuiDrawer : public WindowInputListener, public UIDrawer {
     SetImmediateDrawer(new_immediate_drawer);
   }
 
+  void SetIgnoreInput(bool ignore);
+  bool GetIgnoreInput();
   void Draw(UIDrawContext& ui_draw_context) override;
 
   void ClearDialogs();
@@ -137,6 +139,8 @@ class ImGuiDrawer : public WindowInputListener, public UIDrawer {
 
   double frame_time_tick_frequency_;
   uint64_t last_frame_time_ticks_;
+
+  bool ignore_input;
 };
 
 }  // namespace ui

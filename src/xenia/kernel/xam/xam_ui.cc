@@ -238,7 +238,7 @@ class MessageBoxDialog : public XamDialog {
 
     auto now = std::chrono::high_resolution_clock::now();
     auto interval = std::chrono::duration_cast<std::chrono::milliseconds>(now - clock_);
-    if (interval.count() < 500) flags |= ImGuiWindowFlags_NoInputs;
+    if (interval.count() < 750) flags |= ImGuiWindowFlags_NoInputs;
 
     if (ImGui::BeginPopupModal(title_.c_str(), nullptr, flags)) {
       if (description_.size()) {
@@ -388,22 +388,31 @@ class KeyboardInputDialog : public XamDialog {
       ImGui::OpenPopup(title_.c_str());
       has_opened_ = true;
       first_draw = true;
+      clock_ = std::chrono::high_resolution_clock::now();
     }
-    if (ImGui::BeginPopupModal(title_.c_str(), nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
+
+    auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_None;
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto interval =
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - clock_);
+    if (interval.count() < 750) flags |= ImGuiWindowFlags_NoInputs;
+
+    if (ImGui::BeginPopupModal(title_.c_str(), nullptr, flags)) {
       if (description_.size()) {
         ImGui::TextWrapped("%s", description_.c_str());
       }
-      if (first_draw) {
-        ImGui::SetKeyboardFocusHere();
-        UWP::ShowKeyboard(&text_buffer_);
+
+      ImGui::SetItemDefaultFocus();
+      ImGui::InputText("##body", text_buffer_.data(), text_buffer_.size(),
+                           ImGuiInputTextFlags_EnterReturnsTrue);
+
+      if (ImGui::IsItemHovered() &&
+          ImGui::IsKeyDown(ImGuiKey_GamepadFaceDown)) {
+        UWP::ShowKeyboard();
+        ImGui::SetKeyboardFocusHere(-1);
       }
-      if (ImGui::InputText("##body", text_buffer_.data(), text_buffer_.size(), ImGuiInputTextFlags_None)) {
-        text_ = std::string(text_buffer_.data(), text_buffer_.size());
-        cancelled_ = false;
-        ImGui::CloseCurrentPopup();
-        Close();
-      }
+
       if (ImGui::Button("OK")) {
         text_ = std::string(text_buffer_.data(), text_buffer_.size());
         cancelled_ = false;
@@ -433,6 +442,7 @@ class KeyboardInputDialog : public XamDialog {
   std::vector<char> text_buffer_;
   std::string text_ = "";
   bool cancelled_ = true;
+  std::chrono::high_resolution_clock::time_point clock_;
 };
 
 // https://www.se7ensins.com/forums/threads/release-how-to-use-xshowkeyboardui-release.906568/
