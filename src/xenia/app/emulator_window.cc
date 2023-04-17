@@ -973,22 +973,29 @@ void EmulatorWindow::InstallContent() {
   }
 #else
   imgui_drawer()->SetIgnoreInput(true);
-  UWP::SelectFile([=](std::string file) {
+  UWP::SelectFiles([=](std::vector<std::string> files) {
     imgui_drawer()->SetIgnoreInput(false);
-    if (file == "") return;
-
-    // Normalize the path and make absolute.
-    auto abs_path = std::filesystem::absolute(file);
-    auto result = emulator_->InstallContentPackage(abs_path);
-
-    if (result != X_STATUS_SUCCESS) {
-      XELOGE("Failed to install content! Error code: {:08X}", result);
-
-      xe::ui::ImGuiDialog::ShowMessageBox(
-          imgui_drawer_.get(), "Failed to install content!",
-          "Failed to install content!\n\nCheck xenia.log for technical "
-          "details.");
+    if (files.empty()) {
+      installing_additional_content_ = false;
+      return;
     }
+
+    for (auto path : files) {
+      // Normalize the path and make absolute.
+      auto abs_path = std::filesystem::absolute(path);
+      auto result = emulator_->InstallContentPackage(abs_path);
+
+      if (result != X_STATUS_SUCCESS) {
+        XELOGE("Failed to install content! Error code: {:08X}", result);
+
+        xe::ui::ImGuiDialog::ShowMessageBox(
+            imgui_drawer_.get(), "Failed to install content!",
+            "Failed to install content!\n\nCheck xenia.log for technical "
+            "details.");
+      }
+    }
+
+    installing_additional_content_ = false;
   });
 #endif
 }
@@ -2154,11 +2161,30 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
 
     if (ImGui::BeginTabItem("Extra", nullptr)) {
       if (ImGui::Button("Install Additional Content..")) {
+        emulator_window_.installing_additional_content_ = true;
         emulator_window_.InstallContent();
       }
 
       if (ImGui::Button("Open File..")) {
         emulator_window_.FileOpen();
+      }
+
+      if (emulator_window_.installing_additional_content_ &&
+          !ImGui::IsPopupOpen("Installing..")) {
+        ImGui::OpenPopup("Installing..");
+        ImGui::SetNextWindowSize(
+            ImVec2(1600 * display_scale, 150 * display_scale));
+      }
+
+      if (ImGui::BeginPopupModal("Installing..")) {
+        ImGui::TextWrapped(
+            "Installing custom content. Please hold, this may take up to 30 seconds.");
+        
+        if (!emulator_window_.installing_additional_content_) {
+          ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
       }
 
       ImGui::EndTabItem();
