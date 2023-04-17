@@ -2070,9 +2070,13 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         imgui_drawer()->SetIgnoreInput(true);
         UWP::SelectFolder([this](std::string path) {
           if (path != "") {
-            auto paths = UWP::GetPaths();
-            paths.push_back(path);
-            UWP::SetGamePaths(paths);
+            if (!UWP::TestPathPermissions(path)) {
+              show_path_warning_ = true;
+            } else {
+              auto paths = UWP::GetPaths();
+              paths.push_back(path);
+              UWP::SetGamePaths(paths);
+            }
           }
 
           imgui_drawer()->SetIgnoreInput(false);
@@ -2096,10 +2100,17 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
         UWP::SelectFolder([this, ccache_root, ccontent_root,
                            cstorage_root](std::string path) {
           if (path != "") {
-            ccache_root->SetConfigValue(std::filesystem::path(path + "\\cache"));
-            ccontent_root->SetConfigValue(std::filesystem::path(path + "\\content"));
-            cstorage_root->SetConfigValue(std::filesystem::path(path + "\\storage"));
-            config::SaveConfig();
+            if (!UWP::TestPathPermissions(path)) {
+              ImGui::OpenPopup("Warning");
+            } else {
+              ccache_root->SetConfigValue(
+                  std::filesystem::path(path + "\\cache"));
+              ccontent_root->SetConfigValue(
+                  std::filesystem::path(path + "\\content"));
+              cstorage_root->SetConfigValue(
+                  std::filesystem::path(path + "\\storage"));
+              config::SaveConfig();
+            }
           }
 
           imgui_drawer()->SetIgnoreInput(false);
@@ -2119,6 +2130,23 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
       ImGui::TextWrapped(
           "Note: Please remember to do your USB filesystem setup, or paths to "
           "your USB will not work properly!");
+
+      if (show_path_warning_) {
+        ImGui::OpenPopup("Warning");
+        show_path_warning_ = false;
+        ImGui::SetNextWindowSize(
+            ImVec2(1600 * display_scale, 150 * display_scale));
+      }
+
+      if (ImGui::BeginPopupModal("Warning")) {
+        ImGui::TextWrapped("The folder path you have selected is not writable! Please check that you have the correct permissions for the folder you have selected.");
+        ImGui::Separator();
+        if (ImGui::Button("OK")) {
+          ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+      }
 
       ImGui::EndTabItem();
     }

@@ -159,7 +159,6 @@ void ImGuiDrawer::Initialize() {
   io.NavVisible = true;
   io.DisplayFramebufferScale.x = 2.4f;
   io.DisplayFramebufferScale.y = 2.4f;
-  io.FontGlobalScale = 2.4f;
   io.KeyMap[ImGuiKey_Backspace] = '\b';
   io.KeyMap[ImGuiKey_Enter] = '\r';
 
