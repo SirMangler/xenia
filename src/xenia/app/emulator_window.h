@@ -165,7 +165,13 @@ class EmulatorWindow {
    public:
     WinRTFrontendDialog(ui::ImGuiDrawer* imgui_drawer,
                    EmulatorWindow& emulator_window)
-        : ui::ImGuiDialog(imgui_drawer), emulator_window_(emulator_window) {}
+        : ui::ImGuiDialog(imgui_drawer), emulator_window_(emulator_window) {
+    
+        auto cl = dynamic_cast<cvar::ConfigVar<std::string>*>(
+        cvar::ConfigVars->find("cl")->second);
+        std::string cl_text = (std::string)cl->GetTypedConfigValue();
+        memcpy(cl_buffer, cl_text.data(), std::min((int) cl_text.size(), 128));
+    }
    protected:
     void OnDraw(ImGuiIO& io) override;
 
@@ -176,6 +182,7 @@ class EmulatorWindow {
     std::shared_ptr<ui::ImmediateTexture> background_tex_ = nullptr;
     std::string selectedPath;
     bool ignoreInput = false;
+    char cl_buffer[128];
   };
   
   explicit EmulatorWindow(Emulator* emulator,

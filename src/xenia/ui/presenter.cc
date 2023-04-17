@@ -18,10 +18,9 @@
 #include "xenia/base/platform.h"
 #include "xenia/ui/window.h"
 
-// UWP - TODO
-//#if XE_PLATFORM_WIN32
-//#include "xenia/ui/window_win.h"
-//#endif
+#if XE_PLATFORM_WINRT
+#include "xenia-canary-uwp/UWPUtil.h"
+#endif
 
 // On Windows, InvalidateRect causes WM_PAINT to be sent quite quickly, so
 // presenting from the thread refreshing the guest output is not absolutely
@@ -244,6 +243,9 @@ void Presenter::PaintFromUIThread(bool force_paint) {
   // reconnect).
   bool draw_ui = !ui_drawers_.empty();
   bool do_paint = force_paint || draw_ui;
+
+  UWP::SetUIOpen(draw_ui);
+
   // Reset ui_thread_paint_requested_ unconditionally also, regardless of
   // whether the UI needs to be drawn - the flag may be set to try reconnecting,
   // for example.
