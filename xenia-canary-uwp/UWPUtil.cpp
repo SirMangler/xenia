@@ -89,6 +89,15 @@ void SelectFile(std::function<void(std::string)> callback) {
   PickFileAsync(callback);
 }
 
+bool TestPathPermissions(std::string path) { 
+  auto p = path +  "\\text.txt";
+  std::ofstream o(p);
+  bool success = o.good();
+  std::remove(p.c_str());
+ 
+  return success;
+}
+
 std::string GetLocalCache() {
   return winrt::to_string(winrt::Windows::Storage::ApplicationData::Current()
                               .LocalCacheFolder()
