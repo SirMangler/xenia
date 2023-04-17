@@ -2,9 +2,12 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace UWP {
-bool IsKeyboardShowing();
-void ShowKeyboard(std::vector<char>* input_text);
+void ShowKeyboard();
 void HandleCharacter(uint32_t keycode);
+
+extern std::vector<uint32_t> g_char_buffer;
+extern std::mutex g_buffer_mutex;
 }

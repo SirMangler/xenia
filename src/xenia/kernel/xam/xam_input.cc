@@ -16,6 +16,10 @@
 #include "xenia/kernel/xam/xam_private.h"
 #include "xenia/xbox.h"
 
+#if XE_PLATFORM_WINRT
+#include "xenia-canary-uwp/UWPUtil.h"
+#endif
+
 namespace xe {
 namespace kernel {
 namespace xam {
@@ -53,7 +57,7 @@ dword_result_t XamInputGetCapabilitiesEx_entry(
   if (!caps) {
     return X_ERROR_BAD_ARGUMENTS;
   }
-
+ 
   caps.Zero();
 
   if ((flags & XINPUT_FLAG_ANY_USER) != 0) {
@@ -99,6 +103,8 @@ dword_result_t XamInputGetState_entry(dword_t user_index, dword_t flags,
   if (user_index >= 4) {
     return X_ERROR_DEVICE_NOT_CONNECTED;
   }
+
+  if (UWP::IsUIOpen()) return X_ERROR_SUCCESS;
 
   // Games call this with a NULL state ptr, probably as a query.
 
@@ -155,6 +161,8 @@ dword_result_t XamInputGetKeystroke_entry(
     return X_ERROR_BAD_ARGUMENTS;
   }
 
+  if (UWP::IsUIOpen()) return X_ERROR_SUCCESS;
+
   if ((flags & XINPUT_FLAG_ANYDEVICE) && (flags & XINPUT_FLAG_GAMEPAD) == 0) {
     // Ignore any query for other types of devices.
     return X_ERROR_DEVICE_NOT_CONNECTED;
@@ -179,6 +187,8 @@ dword_result_t XamInputGetKeystrokeEx_entry(
   if (!keystroke) {
     return X_ERROR_BAD_ARGUMENTS;
   }
+
+  if (UWP::IsUIOpen()) return X_ERROR_SUCCESS;
 
   if ((flags & XINPUT_FLAG_ANYDEVICE) && (flags & XINPUT_FLAG_GAMEPAD) == 0) {
     // Ignore any query for other types of devices.

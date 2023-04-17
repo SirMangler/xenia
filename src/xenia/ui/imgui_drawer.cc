@@ -24,6 +24,8 @@
 
 #if XE_PLATFORM_WINRT
 #include "xenia-canary-uwp/XeniaUWP.h"
+#include "xenia-canary-uwp/UWPUtil.h"
+#include "xenia-canary-uwp/WinRTKeyboard.h"
 #endif
 
 namespace xe {
@@ -117,6 +119,8 @@ void ImGuiDrawer::Initialize() {
   io.DisplayFramebufferScale.x = 2.4f;
   io.DisplayFramebufferScale.y = 2.4f;
   io.FontGlobalScale = 2.4f; 
+  io.KeyMap[ImGuiKey_Backspace] = '\b';
+  io.KeyMap[ImGuiKey_Enter] = '\r';
 
   // Setup the font glyphs.
   ImFontConfig font_config;
@@ -303,12 +307,16 @@ void ImGuiDrawer::Draw(UIDrawContext& ui_draw_context) {
   }
 
   if (dialogs_.empty()) {
+    UWP::SetUIOpen(false);
     return;
+  } else {
+    UWP::SetUIOpen(true);
   }
 
   ImGui::SetCurrentContext(internal_state_);
 
   ImGuiIO& io = ImGui::GetIO();
+
   uint64_t current_frame_time_ticks = Clock::QueryHostTickCount();
   io.DeltaTime =
       float(double(current_frame_time_ticks - last_frame_time_ticks_) /
@@ -359,12 +367,19 @@ void ImGuiDrawer::Draw(UIDrawContext& ui_draw_context) {
   }
 }
 
+void ImGuiDrawer::SetIgnoreInput(bool ignore) { ignore_input = ignore; }
+bool ImGuiDrawer::GetIgnoreInput() {
+    return ignore_input;
+}
+
 void ImGuiDrawer::ClearDialogs() {
   size_t dialog_loop = 0;
 
   while (dialog_loop < dialogs_.size()) {
     RemoveDialog(dialogs_[dialog_loop++]);
   }
+
+  UWP::SetUIOpen(false);
 }
 
 void ImGuiDrawer::RenderDrawLists(ImDrawData* data,
