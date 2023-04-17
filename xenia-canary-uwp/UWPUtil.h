@@ -13,6 +13,7 @@ void SelectGameFromWinRT(xe::Emulator* emu);
 bool HasGamePath();
 void SelectFolder(std::function<void(std::string)> callback);
 void SelectFile(std::function<void(std::string)> callback);
+void SelectFiles(std::function<void(std::vector<std::string>)> callback);
 bool TestPathPermissions(std::string path);
 std::string GetLocalCache();
 std::string GetLocalState();

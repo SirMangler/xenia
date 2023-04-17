@@ -3,7 +3,7 @@
   <Identity
     Name="27d6ba69-e4f1-4b69-b391-8238bab5a431"
     Publisher="CN=SirMangler"
-    Version="1.1.1.0" />
+    Version="1.1.2.0" />
   <mp:PhoneIdentity PhoneProductId="27d6ba69-e4f1-4b69-b391-8238bab5a431" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
   <Properties>
     <DisplayName>xenia-canary-uwp</DisplayName>
