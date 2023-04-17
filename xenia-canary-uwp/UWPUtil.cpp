@@ -56,6 +56,24 @@ winrt::fire_and_forget PickFolderAsync(
   callback(path);
 }
 
+winrt::fire_and_forget PickFilesAsync(
+    std::function<void(std::vector<std::string>)> callback) {
+  FileOpenPicker openPicker;
+  openPicker.ViewMode(PickerViewMode::List);
+  openPicker.SuggestedStartLocation(PickerLocationId::ComputerFolder);
+  openPicker.FileTypeFilter().Append(L"*");
+
+  auto folders = co_await openPicker.PickMultipleFilesAsync();
+  std::vector<std::string> paths;
+  if (folders) {
+    for (auto folder : folders) {
+      paths.push_back(winrt::to_string(folder.Path()));
+    }
+  }
+
+  callback(paths);
+}
+
 winrt::fire_and_forget PickFileAsync(
     std::function<void(std::string)> callback) {
   FileOpenPicker openPicker;
@@ -87,6 +105,10 @@ void SelectFolder(std::function<void(std::string)> callback) {
 
 void SelectFile(std::function<void(std::string)> callback) {
   PickFileAsync(callback);
+}
+
+void SelectFiles(std::function<void(std::vector<std::string>)> callback) {
+  PickFilesAsync(callback);
 }
 
 bool TestPathPermissions(std::string path) { 
