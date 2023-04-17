@@ -183,6 +183,7 @@ class EmulatorWindow {
     std::string selectedPath;
     bool ignoreInput = false;
     char cl_buffer[128];
+    bool show_path_warning_ = false;
   };
   
   explicit EmulatorWindow(Emulator* emulator,
