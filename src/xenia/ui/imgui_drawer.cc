@@ -24,7 +24,11 @@
 #include "xenia/ui/window.h"
 #include "xenia/hid/input.h"
 
+// We already include this in emulator_window.cpp
+#if !XE_PLATFORM_WINRT
 #define STB_IMAGE_IMPLEMENTATION
+#endif 
+
 #include "third_party/stb/stb_image.h"
 
 #if XE_PLATFORM_WIN32
@@ -148,6 +152,7 @@ void ImGuiDrawer::Initialize() {
   InitializeFonts();
 
   // Xbox navigation
+  ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
@@ -304,7 +309,7 @@ bool ImGuiDrawer::LoadCustomFont(ImGuiIO& io, ImFontConfig& font_config,
 
 bool ImGuiDrawer::LoadWindowsFont(ImGuiIO& io, ImFontConfig& font_config,
                                   float font_size) {
-#if XE_PLATFORM_WIN32
+#if XE_PLATFORM_WIN32 && !XE_PLATFORM_WINRT
   PWSTR fonts_dir;
   HRESULT result = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fonts_dir);
   if (FAILED(result)) {
@@ -337,7 +342,7 @@ bool ImGuiDrawer::LoadWindowsFont(ImGuiIO& io, ImFontConfig& font_config,
 
 bool ImGuiDrawer::LoadJapaneseFont(ImGuiIO& io, float font_size) {
   // TODO(benvanik): jp font on other platforms?
-#if XE_PLATFORM_WIN32
+#if XE_PLATFORM_WIN32 && !XE_PLATFORM_WINRT
   PWSTR fonts_dir;
   HRESULT result = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fonts_dir);
   if (FAILED(result)) {

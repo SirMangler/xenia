@@ -21,7 +21,7 @@
 namespace xe {
 namespace ui {
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_GAMES)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_GAMES) && !XE_PLATFORM_WINRT
 class Win32HwndSurface final : public Surface {
  public:
   explicit Win32HwndSurface(HINSTANCE hinstance, HWND hwnd)
