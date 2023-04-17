@@ -2134,6 +2134,19 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
       ImGui::EndTabItem();
     }
 
+    if (ImGui::BeginTabItem("About", nullptr)) {
+      ImGui::TextWrapped(
+          "Xenia UWP - A fork of Xenia introducing Xbox support and a big picture frontend.\n"
+          "Xenia's Website: https://xenia.jp/\n"
+          "Xenia's Patreon: https://www.patreon.com/xenia_project\n\n"
+          "This Xbox fork was developed by SirMangler.\n"
+          "Support me on Ko-Fi: https://ko-fi.com/sirmangler\n"
+          "Source Code: https://github.com/SirMangler/xenia/\n\n"
+          "Big thanks to TXF for creating the background, as well as to Reverie and TRW for extensive testing and moral support!");
+
+      ImGui::EndTabItem();
+    }
+
     ImGui::EndTabBar();
   }
     
