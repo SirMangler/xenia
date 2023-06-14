@@ -2363,7 +2363,7 @@ void EmulatorWindow::WinRTFrontendDialog::OnDraw(ImGuiIO& io) {
 
       if (ImGui::BeginTabItem("About", nullptr)) {
         ImGui::TextWrapped(
-            "Xenia UWP - A fork of Xenia introducing Xbox support and a big "
+            "Xenia UWP 1.1.3 - A fork of Xenia introducing Xbox support and a big "
             "picture frontend.\n"
             "Xenia's Website: https://xenia.jp/\n"
             "Xenia's Patreon: https://www.patreon.com/xenia_project\n\n"
