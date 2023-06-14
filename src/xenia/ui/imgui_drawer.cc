@@ -323,7 +323,7 @@ bool ImGuiDrawer::LoadCustomFont(ImGuiIO& io, ImFontConfig& font_config,
 
 bool ImGuiDrawer::LoadWindowsFont(ImGuiIO& io, ImFontConfig& font_config,
                                   float font_size) {
-#if XE_PLATFORM_WIN32
+#if XE_PLATFORM_WIN32 & !XE_PLATFORM_WINRT
   PWSTR fonts_dir;
   HRESULT result = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fonts_dir);
   if (FAILED(result)) {
@@ -356,7 +356,7 @@ bool ImGuiDrawer::LoadWindowsFont(ImGuiIO& io, ImFontConfig& font_config,
 
 bool ImGuiDrawer::LoadJapaneseFont(ImGuiIO& io, float font_size) {
   // TODO(benvanik): jp font on other platforms?
-#if XE_PLATFORM_WIN32
+#if XE_PLATFORM_WIN32 & !XE_PLATFORM_WINRT
   PWSTR fonts_dir;
   HRESULT result = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fonts_dir);
   if (FAILED(result)) {

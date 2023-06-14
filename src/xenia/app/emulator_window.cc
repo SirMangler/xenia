@@ -20,7 +20,6 @@
 #include "third_party/fmt/include/fmt/format.h"
 #include "third_party/imgui/imgui.h"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "third_party/stb/stb_image.h"
 
 #include "xenia/base/assert.h"
