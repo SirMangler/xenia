@@ -162,6 +162,7 @@ void ImGuiDrawer::Initialize() {
   io.KeyMap[ImGuiKey_Backspace] = '\b';
   io.KeyMap[ImGuiKey_Enter] = '\r';
 
+#ifndef XE_PLATFORM_WINRT
   // Setup the font glyphs.
   ImFontConfig font_config;
   font_config.OversampleH = font_config.OversampleV = 1;
@@ -176,6 +177,13 @@ void ImGuiDrawer::Initialize() {
   io.Fonts->AddFontFromMemoryCompressedBase85TTF(
       kProggyTinyCompressedDataBase85, 10.0f, &font_config,
       io.Fonts->GetGlyphRangesDefault());
+#else
+  ImFontConfig config;
+  config.MergeMode = true;
+  io.Fonts->AddFontFromFileTTF("Assets/Roboto-Regular.ttf", 13, 0);
+  io.Fonts->AddFontFromFileTTF("Assets/NotoSansJP-Regular.ttf", 13,
+                               &config, io.Fonts->GetGlyphRangesJapanese());
+#endif
 
   auto& style = ImGui::GetStyle();
   style.ScrollbarRounding = 0;
@@ -393,6 +401,7 @@ void ImGuiDrawer::InitializeFonts() {
   // Windows.
   io.IniFilename = nullptr;
 
+#ifndef XE_PLATFORM_WINRT
   ImFontConfig font_config;
   font_config.OversampleH = font_config.OversampleV = 2;
   font_config.PixelSnapH = true;
@@ -409,6 +418,13 @@ void ImGuiDrawer::InitializeFonts() {
   }
 
   LoadJapaneseFont(io, font_size);
+#else
+  ImFontConfig config;
+  config.MergeMode = true;
+  io.Fonts->AddFontFromFileTTF("Assets/Roboto-Regular.ttf", font_size, 0);
+  io.Fonts->AddFontFromFileTTF("Assets/NotoSansJP-Regular.ttf", font_size,
+                               &config, io.Fonts->GetGlyphRangesJapanese());
+#endif
 }
 
 void ImGuiDrawer::SetupFontTexture() {

@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\xenia\app\emulator_window.cc" />
+    <ClCompile Include="..\src\xenia\app\xenia_main.cc" />
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="surface_uwp.cpp" />
+    <ClCompile Include="UWPUtil.cpp" />
+    <ClCompile Include="windowed_app_context_uwp.cc" />
+    <ClCompile Include="window_uwp.cc" />
+    <ClCompile Include="WinRTKeyboard.cpp" />
+    <ClCompile Include="XeniaUWP.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\xenia\app\emulator_window.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="surface_uwp.h" />
+    <ClInclude Include="UWPUtil.h" />
+    <ClInclude Include="windowed_app_context_uwp.h" />
+    <ClInclude Include="window_uwp.h" />
+    <ClInclude Include="WinRTKeyboard.h" />
+    <ClInclude Include="XeniaUWP.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\background.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="PropertySheet.props" />
+    <None Include="xenia-canary-uwp_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{b4052912-ca18-4b06-8a74-43d31e0a21dc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Assets\NotoSansJP-Regular.ttf">
+      <Filter>Assets</Filter>
+    </Font>
+    <Font Include="Assets\Roboto-Regular.ttf">
+      <Filter>Assets</Filter>
+    </Font>
+  </ItemGroup>
+</Project>
