@@ -123,12 +123,15 @@ bool TestPathPermissions(std::string path) {
 std::string GetLocalCache() {
   return winrt::to_string(winrt::Windows::Storage::ApplicationData::Current()
                               .LocalCacheFolder()
-                              .Path());
+                              .Path()) +
+         "/Xenia Canary/";
 }
 
 std::string GetLocalState() {
-  return winrt::to_string(
-      winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path());
+  return winrt::to_string(winrt::Windows::Storage::ApplicationData::Current()
+                              .LocalFolder()
+                              .Path()) +
+         "/Xenia Canary/";
 }
 
 int GetCoreDPI() { return m_DPI; }

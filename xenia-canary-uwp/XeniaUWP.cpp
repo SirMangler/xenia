@@ -156,7 +156,11 @@ void UWP::RefreshPaths() {
   s_paths.clear();
   s_games.clear();
 
-  RecurseFolderForGames(UWP::GetLocalCache());
+  auto path = UWP::GetLocalCache();
+  if (!std::filesystem::exists(path)) 
+      std::filesystem::create_directory(path);
+
+  RecurseFolderForGames(path);
 
   if (!cvars::gamepaths.empty()) {
     std::stringstream ss (cvars::gamepaths);
